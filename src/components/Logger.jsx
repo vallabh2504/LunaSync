@@ -7,6 +7,8 @@ const Logger = ({ onSaveLog }) => {
   const [cramps, setCramps] = useState(1);
   const [bloating, setBloating] = useState(1);
   const [headache, setHeadache] = useState(1);
+  const [water, setWater] = useState(0);
+  const [sleep, setSleep] = useState(0);
   const [saved, setSaved] = useState(false);
 
   const moodOptions = [
@@ -43,6 +45,8 @@ const Logger = ({ onSaveLog }) => {
       mood,
       cravings,
       energy,
+      water,
+      sleep,
       symptoms: { cramps, bloating, headache }
     };
     onSaveLog(log);
@@ -55,6 +59,41 @@ const Logger = ({ onSaveLog }) => {
       <h3 className="text-xl font-bold text-pink-500 mb-4 flex items-center gap-2">
         <span className="bg-pink-100 p-2 rounded-lg text-2xl">📝</span> Log Today
       </h3>
+
+      {/* Water & Sleep Trackers */}
+      <div className="flex justify-around mb-6 bg-pink-50 p-4 rounded-xl">
+        <div className="flex flex-col items-center">
+          <div className="flex gap-1 mb-1">
+            {[1,2,3,4,5,6,7,8].map(i => (
+              <button
+                key={i}
+                onClick={() => setWater(i)}
+                className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center transition-all
+                  ${water >= i ? 'bg-blue-400 text-white' : 'bg-white text-gray-300 border border-gray-100'}`}
+              >
+                {i <= water ? '💧' : ''}
+              </button>
+            ))}
+          </div>
+          <span className="text-xs font-bold text-blue-500">Water ({water}/8)</span>
+        </div>
+        
+        <div className="flex flex-col items-center">
+          <div className="flex gap-1 mb-1">
+            {[1,2,3,4,5,6,7,8].map(i => (
+              <button
+                key={i}
+                onClick={() => setSleep(i)}
+                className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center transition-all
+                  ${sleep >= i ? 'bg-indigo-400 text-white' : 'bg-white text-gray-300 border border-gray-100'}`}
+              >
+                {i <= sleep ? '🌙' : ''}
+              </button>
+            ))}
+          </div>
+          <span className="text-xs font-bold text-indigo-500">Sleep ({sleep}/8)</span>
+        </div>
+      </div>
 
       {/* Moods */}
       <div className="mb-6">
