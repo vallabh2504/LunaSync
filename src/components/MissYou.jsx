@@ -11,7 +11,7 @@ const MissYou = () => {
   const handleMissYou = async () => {
     setSending(true);
     // Use a heartwarming message
-    const heartWarmingMessage = "Hey! Just wanted to let you know I'm thinking of you and I miss you ❤️ (Sent from LunaSync)";
+    const heartWarmingMessage = "Bujji I'm missing you ra";
     
     try {
       const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
