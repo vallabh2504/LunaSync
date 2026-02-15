@@ -1,43 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const MissYou = () => {
-  const [botToken, setBotToken] = useState(() => localStorage.getItem('botToken') || '');
-  const [chatId, setChatId] = useState(() => localStorage.getItem('chatId') || '');
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState('');
-  const [showConfig, setShowConfig] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('botToken', botToken);
-    localStorage.setItem('chatId', chatId);
-  }, [botToken, chatId]);
+  // Hardcoded credentials as requested
+  const BOT_TOKEN = '8273528353:AAGOQJGIaNt2bK32YWXfwKzlX8K9PX41ykY';
+  const CHAT_ID = '456109422';
 
   const handleMissYou = async () => {
-    if (!botToken || !chatId) {
-      setMessage('⚠️ Please configure Telegram first!');
-      setShowConfig(true);
-      return;
-    }
     setSending(true);
-    setMessage('Sending love... ❤️');
+    // Use a heartwarming message
+    const heartWarmingMessage = "Hey! Just wanted to let you know I'm thinking of you and I miss you ❤️ (Sent from LunaSync)";
+    
     try {
-      const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chat_id: chatId,
-          text: "I miss you! ❤️ (from LunaSync)",
+          chat_id: CHAT_ID,
+          text: heartWarmingMessage,
         }),
       });
+      
       const data = await response.json();
+      
       if (data.ok) {
         setMessage('Message sent! 💌');
       } else {
-        setMessage(`Failed: ${data.description}`);
+        console.error('Telegram API Error:', data);
+        setMessage(`Failed: ${data.description || 'Unknown error'}`);
       }
     } catch (error) {
-      setMessage('Error sending message.');
+      console.error('Fetch Error:', error);
+      setMessage('Error sending message. Check console.');
     }
+    
     setSending(false);
     setTimeout(() => setMessage(''), 3000);
   };
@@ -46,30 +44,8 @@ const MissYou = () => {
     <div className="bg-white rounded-2xl shadow-lg p-6 border border-pink-100 transform hover:scale-[1.02] transition-transform duration-300">
       <h3 className="text-xl font-bold text-gray-400 mb-4 flex items-center justify-between">
          <span className="flex items-center gap-2">💌 Send Love</span>
-         <button onClick={() => setShowConfig(!showConfig)} className="text-gray-300 hover:text-gray-500">
-           ⚙️
-         </button>
       </h3>
       
-      {showConfig && (
-        <div className="mb-4 space-y-2 animate-fadeIn">
-          <input 
-            type="text" 
-            placeholder="Bot Token" 
-            value={botToken} 
-            onChange={(e) => setBotToken(e.target.value)}
-            className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-pink-300"
-          />
-          <input 
-            type="text" 
-            placeholder="Chat ID" 
-            value={chatId} 
-            onChange={(e) => setChatId(e.target.value)}
-            className="w-full p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-pink-300"
-          />
-        </div>
-      )}
-
       <button 
         onClick={handleMissYou}
         disabled={sending}
