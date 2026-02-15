@@ -60,39 +60,35 @@ const Logger = ({ onSaveLog }) => {
         <span className="bg-pink-100 p-2 rounded-lg text-2xl">📝</span> Log Today
       </h3>
 
-      {/* Water & Sleep Trackers */}
-      <div className="flex justify-around mb-6 bg-pink-50 p-4 rounded-xl">
-        <div className="flex flex-col items-center">
-          <div className="flex gap-1 mb-1">
-            {[1,2,3,4,5,6,7,8].map(i => (
-              <button
-                key={i}
-                onClick={() => setWater(i)}
-                className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center transition-all
-                  ${water >= i ? 'bg-blue-400 text-white' : 'bg-white text-gray-300 border border-gray-100'}`}
-              >
-                {i <= water ? '💧' : ''}
-              </button>
-            ))}
-          </div>
-          <span className="text-xs font-bold text-blue-500">Water ({water}/8)</span>
+      {/* Water & Sleep Trackers - Grid Layout for Mobile */}
+      <div className="mb-6 bg-pink-50 p-4 rounded-xl">
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          {[1,2,3,4,5,6,7,8].map(i => (
+            <button
+              key={`water-${i}`}
+              onClick={() => setWater(i)}
+              className={`h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all
+                ${water >= i ? 'bg-blue-400 text-white' : 'bg-white text-gray-300 border border-gray-100'}`}
+            >
+              {i <= water ? '💧' : ''}
+            </button>
+          ))}
         </div>
+        <span className="text-xs font-bold text-blue-500 block text-center">Water ({water}/8)</span>
         
-        <div className="flex flex-col items-center">
-          <div className="flex gap-1 mb-1">
-            {[1,2,3,4,5,6,7,8].map(i => (
-              <button
-                key={i}
-                onClick={() => setSleep(i)}
-                className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center transition-all
-                  ${sleep >= i ? 'bg-indigo-400 text-white' : 'bg-white text-gray-300 border border-gray-100'}`}
-              >
-                {i <= sleep ? '🌙' : ''}
-              </button>
-            ))}
-          </div>
-          <span className="text-xs font-bold text-indigo-500">Sleep ({sleep}/8)</span>
+        <div className="grid grid-cols-4 gap-2 mb-3 mt-4">
+          {[1,2,3,4,5,6,7,8].map(i => (
+            <button
+              key={`sleep-${i}`}
+              onClick={() => setSleep(i)}
+              className={`h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all
+                ${sleep >= i ? 'bg-indigo-400 text-white' : 'bg-white text-gray-300 border border-gray-100'}`}
+            >
+              {i <= sleep ? '🌙' : ''}
+            </button>
+          ))}
         </div>
+        <span className="text-xs font-bold text-indigo-500 block text-center">Sleep ({sleep}/8)</span>
       </div>
 
       {/* Moods */}
