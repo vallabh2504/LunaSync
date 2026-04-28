@@ -1,67 +1,47 @@
-import React, { useState } from 'react';
+import { useState } from 'react'
+
+const BOT_TOKEN = import.meta.env.VITE_BOT_TOKEN
+const CHAT_ID   = import.meta.env.VITE_CHAT_ID
 
 const MissYou = () => {
-  const [sending, setSending] = useState(false);
-  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false)
+  const [status,  setStatus]  = useState('')
 
-  // Hardcoded credentials as requested
-  const BOT_TOKEN = '8273528353:AAGOQJGIaNt2bK32YWXfwKzlX8K9PX41ykY';
-  const CHAT_ID = '456109422';
-
-  const handleMissYou = async () => {
-    setSending(true);
-    // Use a heartwarming message
-    const heartWarmingMessage = "Bujji I'm missing you ra";
-    
+  const send = async () => {
+    if (!BOT_TOKEN || !CHAT_ID) { setStatus('Not configured'); return }
+    setSending(true)
     try {
-      const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
+      const res  = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: heartWarmingMessage,
-        }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.ok) {
-        setMessage('Message sent! 💌');
-      } else {
-        console.error('Telegram API Error:', data);
-        setMessage(`Failed: ${data.description || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Fetch Error:', error);
-      setMessage('Error sending message. Check console.');
+        body:    JSON.stringify({ chat_id: CHAT_ID, text: "Bujji I'm missing you ra 💕" }),
+      })
+      const data = await res.json()
+      setStatus(data.ok ? 'Sent! 💌' : 'Failed to send')
+    } catch {
+      setStatus('Error — check connection')
     }
-    
-    setSending(false);
-    setTimeout(() => setMessage(''), 3000);
-  };
+    setSending(false)
+    setTimeout(() => setStatus(''), 3000)
+  }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 border border-pink-100 transform hover:scale-[1.02] transition-transform duration-300">
-      <h3 className="text-xl font-bold text-gray-400 mb-4 flex items-center justify-between">
-         <span className="flex items-center gap-2">💌 Send Love</span>
+    <div className="card p-5">
+      <h3 className="font-bold text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2 text-sm uppercase tracking-widest">
+        💌 Send Love
       </h3>
-      
-      <button 
-        onClick={handleMissYou}
-        disabled={sending}
-        className={`w-full py-3 rounded-xl text-white font-bold text-lg shadow-lg transform transition active:scale-95 duration-200 flex items-center justify-center gap-2
-          ${sending ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600 shadow-red-200'}`}
-      >
+      <button onClick={send} disabled={sending}
+        className={`w-full py-3.5 rounded-2xl text-white font-bold text-base shadow-lg transition-all active:scale-95
+          ${sending ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600 shadow-red-200 dark:shadow-pink-900/20'}`}>
         {sending ? 'Sending...' : 'Miss You ❤️'}
       </button>
-      
-      {message && (
-        <p className="text-center text-sm mt-3 font-medium text-pink-600 animate-pulse bg-pink-50 p-2 rounded-lg">
-          {message}
+      {status && (
+        <p className="text-center text-sm mt-3 font-medium text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-900/20 p-2 rounded-xl">
+          {status}
         </p>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default MissYou;
+export default MissYou

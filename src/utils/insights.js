@@ -1,53 +1,44 @@
 export const analyzeLogs = (logs) => {
-  if (!logs || logs.length === 0) return { advice: "Start logging to get insights! 🌟" };
+  if (!logs || logs.length === 0) return { advice: 'Start logging to get personalised insights! 🌟' }
 
-  // Get today's logs
-  const today = new Date().toISOString().split('T')[0];
-  const todayLogs = logs.filter(log => log.timestamp.startsWith(today));
+  const today     = new Date().toISOString().split('T')[0]
+  const todayLogs = logs.filter(l => l.timestamp.startsWith(today))
 
-  if (todayLogs.length === 0) return { advice: "How are you feeling today? 🌸" };
+  if (!todayLogs.length) return { advice: "How are you feeling today? Log your symptoms to get insights 🌸" }
 
-  // Calculate averages/totals for today
-  let totalCramps = 0;
-  let sugarCraving = false;
-  let lowEnergy = false;
-  let bloating = 0;
-  let headache = 0;
+  let cramps = 0, bloating = 0, headache = 0, backPain = 0, nausea = 0
+  let sugarCraving = false, lowEnergy = false
 
-  todayLogs.forEach(log => {
-    if (log.symptoms?.cramps) totalCramps += log.symptoms.cramps;
-    if (log.symptoms?.bloating) bloating += log.symptoms.bloating;
-    if (log.symptoms?.headache) headache += log.symptoms.headache;
-    if (log.cravings?.includes('chocolate') || log.cravings?.includes('sweets')) sugarCraving = true;
-    if (log.energy && log.energy < 3) lowEnergy = true;
-  });
+  todayLogs.forEach(l => {
+    cramps   += l.symptoms?.cramps   || 0
+    bloating += l.symptoms?.bloating || 0
+    headache += l.symptoms?.headache || 0
+    backPain += l.symptoms?.backPain || 0
+    nausea   += l.symptoms?.nausea   || 0
+    // Case-insensitive craving check
+    const cravingsLower = (l.cravings || []).map(c => c.toLowerCase())
+    if (cravingsLower.includes('chocolate') || cravingsLower.includes('sweet')) sugarCraving = true
+    if (l.energy && l.energy < 3) lowEnergy = true
+  })
 
-  const avgCramps = totalCramps / todayLogs.length;
+  const n   = todayLogs.length
+  const avg = { cramps: cramps/n, bloating: bloating/n, headache: headache/n, backPain: backPain/n, nausea: nausea/n }
 
-  // Pattern Recognition & Remedies
-  const suggestions = [];
+  const suggestions = []
 
-  if (avgCramps > 3 && sugarCraving) {
-    suggestions.push("High sugar can worsen cramps! Try magnesium-rich dark chocolate 🍫 or ginger tea 🫖 instead.");
-  } else if (avgCramps > 3) {
-    suggestions.push("Cramps alert! 😣 Try a hot water bottle, gentle yoga 🧘‍♀️, or chamomile tea.");
+  if (avg.cramps > 3 && sugarCraving) {
+    suggestions.push('High sugar can worsen cramps! Try magnesium-rich dark chocolate 🍫 or ginger tea 🫖 instead.')
+  } else if (avg.cramps > 3) {
+    suggestions.push('Cramps alert 😣 — try a hot water bottle, gentle yoga 🧘‍♀️, or chamomile tea.')
   }
 
-  if (bloating > 3) {
-    suggestions.push("Feeling bloated? 🎈 Avoid salty foods and drink plenty of water 💧.");
-  }
+  if (avg.bloating > 3) suggestions.push('Feeling bloated? 🎈 Avoid salty foods and drink more water 💧.')
+  if (avg.headache > 3) suggestions.push('Headache? 🤕 Rest in a dark room and stay hydrated.')
+  if (avg.backPain > 3) suggestions.push('Back pain? 🧘 A gentle stretch or heat pad can really help.')
+  if (avg.nausea   > 3) suggestions.push('Feeling nauseous? 🌿 Ginger tea or peppermint can settle your stomach.')
+  if (lowEnergy)         suggestions.push('Low energy today 😴 — it\'s okay to rest. Listen to your body.')
 
-  if (headache > 3) {
-    suggestions.push("Headache? 🤕 Rest in a dark room and stay hydrated.");
-  }
+  if (!suggestions.length) return { advice: "You're doing great today! Keep listening to your body ✨" }
 
-  if (lowEnergy) {
-    suggestions.push("Low energy? 😴 It's okay to rest. Listen to your body.");
-  }
-
-  if (suggestions.length === 0) {
-    return { advice: "You're doing great! Keep listening to your body. ✨" };
-  }
-
-  return { advice: suggestions[0], allSuggestions: suggestions };
-};
+  return { advice: suggestions[0], allSuggestions: suggestions }
+}
