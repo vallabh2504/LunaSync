@@ -1,189 +1,163 @@
-import React, { useState } from 'react';
+import { useState } from 'react'
+
+const MOODS = [
+  { label: 'Happy',    emoji: '😊' }, { label: 'Sad',      emoji: '😢' },
+  { label: 'Angry',   emoji: '😠' }, { label: 'Tired',    emoji: '😴' },
+  { label: 'Energetic',emoji:'⚡' }, { label: 'Anxious',  emoji: '😰' },
+  { label: 'Calm',    emoji: '😌' }, { label: 'Loved',    emoji: '🥰' },
+]
+
+const CRAVINGS = [
+  { label: 'Chocolate', emoji: '🍫' }, { label: 'Salty', emoji: '🍟' },
+  { label: 'Sweet',     emoji: '🍬' }, { label: 'Carbs', emoji: '🍞' },
+  { label: 'Spicy',     emoji: '🌶️' }, { label: 'Healthy', emoji: '🥗' },
+]
+
+const SYMPTOMS = [
+  { key: 'cramps',   label: 'Cramps',           color: 'accent-pink-500' },
+  { key: 'bloating', label: 'Bloating',          color: 'accent-purple-500' },
+  { key: 'headache', label: 'Headache',          color: 'accent-rose-500' },
+  { key: 'backPain', label: 'Back Pain',         color: 'accent-orange-400' },
+  { key: 'nausea',   label: 'Nausea',            color: 'accent-indigo-400' },
+]
+
+const Slider = ({ label, value, onChange, color }) => (
+  <div className="bg-pink-50 dark:bg-purple-900/20 p-3 rounded-xl border border-pink-100 dark:border-purple-800/40">
+    <div className="flex justify-between items-center mb-1.5">
+      <label className="text-xs font-bold text-gray-500 dark:text-gray-400">{label}</label>
+      <span className="text-xs font-black text-pink-500 dark:text-purple-300 bg-white dark:bg-purple-900/50 px-2 py-0.5 rounded-full border border-pink-100 dark:border-purple-700">{value}</span>
+    </div>
+    <input type="range" min="1" max="5" value={value} onChange={e => onChange(Number(e.target.value))}
+      className={`w-full h-2 bg-pink-200 dark:bg-purple-800 rounded-lg appearance-none cursor-pointer ${color}`} />
+  </div>
+)
 
 const Logger = ({ onSaveLog }) => {
-  const [mood, setMood] = useState([]);
-  const [cravings, setCravings] = useState([]);
-  const [energy, setEnergy] = useState(3);
-  const [cramps, setCramps] = useState(1);
-  const [bloating, setBloating] = useState(1);
-  const [headache, setHeadache] = useState(1);
-  const [water, setWater] = useState(0);
-  const [sleep, setSleep] = useState(0);
-  const [saved, setSaved] = useState(false);
+  const [mood,     setMood]     = useState([])
+  const [cravings, setCravings] = useState([])
+  const [energy,   setEnergy]   = useState(3)
+  const [water,    setWater]    = useState(0)
+  const [sleep,    setSleep]    = useState(0)
+  const [notes,    setNotes]    = useState('')
+  const [saved,    setSaved]    = useState(false)
+  const [symptoms, setSymptoms] = useState({ cramps: 1, bloating: 1, headache: 1, backPain: 1, nausea: 1 })
 
-  const moodOptions = [
-    { label: 'Happy', emoji: '😊' },
-    { label: 'Sad', emoji: '😢' },
-    { label: 'Angry', emoji: '😠' },
-    { label: 'Tired', emoji: '😴' },
-    { label: 'Energetic', emoji: '⚡' },
-    { label: 'Anxious', emoji: '😰' },
-    { label: 'Calm', emoji: '😌' },
-    { label: 'Loved', emoji: '🥰' },
-  ];
-
-  const cravingOptions = [
-    { label: 'Chocolate', emoji: '🍫' },
-    { label: 'Salty', emoji: '🍟' },
-    { label: 'Sweet', emoji: '🍬' },
-    { label: 'Carbs', emoji: '🍞' },
-    { label: 'Spicy', emoji: '🌶️' },
-    { label: 'Healthy', emoji: '🥗' },
-  ];
-
-  const toggleMood = (label) => {
-    setMood(prev => prev.includes(label) ? prev.filter(m => m !== label) : [...prev, label]);
-  };
-
-  const toggleCraving = (label) => {
-    setCravings(prev => prev.includes(label) ? prev.filter(c => c !== label) : [...prev, label]);
-  };
+  const toggle = (arr, setArr, val) =>
+    setArr(prev => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val])
 
   const handleSave = () => {
-    const log = {
-      timestamp: new Date().toISOString(),
-      mood,
-      cravings,
-      energy,
-      water,
-      sleep,
-      symptoms: { cramps, bloating, headache }
-    };
-    onSaveLog(log);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
+    onSaveLog({ timestamp: new Date().toISOString(), mood, cravings, energy, water, sleep, symptoms, notes })
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-pink-100 transform hover:scale-[1.02] transition-transform duration-300">
-      <h3 className="text-xl font-bold text-pink-500 mb-4 flex items-center gap-2">
-        <span className="bg-pink-100 p-2 rounded-lg text-2xl">📝</span> Log Today
+    <div className="card p-5 space-y-5">
+      <h3 className="text-lg font-bold text-pink-500 dark:text-pink-400 flex items-center gap-2">
+        <span className="bg-pink-100 dark:bg-pink-900 p-2 rounded-xl text-xl">📝</span> Log Today
       </h3>
 
-      {/* Water & Sleep Trackers - Grid Layout for Mobile */}
-      <div className="mb-6 bg-pink-50 p-4 rounded-xl">
-        <div className="grid grid-cols-4 gap-2 mb-3">
-          {[1,2,3,4,5,6,7,8].map(i => (
-            <button
-              key={`water-${i}`}
-              onClick={() => setWater(i)}
-              className={`h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all
-                ${water >= i ? 'bg-blue-400 text-white' : 'bg-white text-gray-300 border border-gray-100'}`}
-            >
-              {i <= water ? '💧' : ''}
-            </button>
-          ))}
+      {/* Water & Sleep */}
+      <div className="bg-pink-50 dark:bg-purple-900/20 p-4 rounded-2xl border border-pink-100 dark:border-purple-800/30 space-y-4">
+        <div>
+          <div className="grid grid-cols-8 gap-1.5 mb-1.5">
+            {Array.from({ length: 8 }, (_, i) => i + 1).map(i => (
+              <button key={i} onClick={() => setWater(i === water ? i - 1 : i)}
+                className={`h-9 rounded-lg text-sm font-bold transition-all active:scale-90
+                  ${water >= i ? 'bg-blue-400 text-white shadow-sm' : 'bg-white dark:bg-blue-900/20 text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-blue-900'}`}>
+                {water >= i ? '💧' : ''}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs font-bold text-blue-500 text-center">Water ({water}/8 cups)</p>
         </div>
-        <span className="text-xs font-bold text-blue-500 block text-center">Water ({water}/8)</span>
-        
-        <div className="grid grid-cols-4 gap-2 mb-3 mt-4">
-          {[1,2,3,4,5,6,7,8].map(i => (
-            <button
-              key={`sleep-${i}`}
-              onClick={() => setSleep(i)}
-              className={`h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all
-                ${sleep >= i ? 'bg-indigo-400 text-white' : 'bg-white text-gray-300 border border-gray-100'}`}
-            >
-              {i <= sleep ? '🌙' : ''}
-            </button>
-          ))}
+        <div>
+          <div className="grid grid-cols-8 gap-1.5 mb-1.5">
+            {Array.from({ length: 8 }, (_, i) => i + 1).map(i => (
+              <button key={i} onClick={() => setSleep(i === sleep ? i - 1 : i)}
+                className={`h-9 rounded-lg text-sm font-bold transition-all active:scale-90
+                  ${sleep >= i ? 'bg-indigo-400 text-white shadow-sm' : 'bg-white dark:bg-indigo-900/20 text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-indigo-900'}`}>
+                {sleep >= i ? '🌙' : ''}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs font-bold text-indigo-500 text-center">Sleep ({sleep}/8 hrs)</p>
         </div>
-        <span className="text-xs font-bold text-indigo-500 block text-center">Sleep ({sleep}/8)</span>
       </div>
 
-      {/* Moods */}
-      <div className="mb-6">
-        <h4 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Moods</h4>
+      {/* Mood */}
+      <div>
+        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Mood</h4>
         <div className="grid grid-cols-4 gap-2">
-          {moodOptions.map(option => (
-            <button
-              key={option.label}
-              onClick={() => toggleMood(option.label)}
-              className={`p-3 rounded-xl border transition-all duration-200 flex flex-col items-center justify-center gap-1
-                ${mood.includes(option.label) 
-                  ? 'bg-pink-500 text-white border-pink-600 shadow-md transform scale-105' 
-                  : 'bg-gray-50 text-gray-600 border-gray-100 hover:bg-pink-50'}`}
-            >
-              <span className="text-2xl drop-shadow-sm">{option.emoji}</span>
-              <span className="text-[10px] font-bold">{option.label}</span>
+          {MOODS.map(m => (
+            <button key={m.label} onClick={() => toggle(mood, setMood, m.label)}
+              className={`p-2.5 rounded-2xl border transition-all active:scale-90 flex flex-col items-center gap-1
+                ${mood.includes(m.label) ? 'bg-pink-500 text-white border-pink-600 shadow-md' : 'bg-gray-50 dark:bg-purple-900/10 text-gray-600 dark:text-gray-300 border-gray-100 dark:border-purple-800/30 hover:bg-pink-50'}`}>
+              <span className="text-2xl">{m.emoji}</span>
+              <span className="text-[10px] font-bold">{m.label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Symptoms */}
-      <div className="mb-6 space-y-4">
-        <h4 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Symptoms (1-5)</h4>
-        
-        {[{ label: 'Cramps', value: cramps, setter: setCramps },
-          { label: 'Bloating', value: bloating, setter: setBloating },
-          { label: 'Headache', value: headache, setter: setHeadache }
-        ].map(item => (
-          <div key={item.label} className="bg-pink-50/50 p-3 rounded-xl border border-pink-100/50">
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-xs font-bold text-pink-400">{item.label}</label>
-              <span className="text-xs font-bold bg-white px-2 py-0.5 rounded-full text-pink-500 shadow-sm border border-pink-100">{item.value}</span>
-            </div>
-            <input 
-              type="range" 
-              min="1" 
-              max="5" 
-              value={item.value} 
-              onChange={(e) => item.setter(Number(e.target.value))}
-              className="w-full h-2 bg-pink-200 rounded-lg appearance-none cursor-pointer accent-pink-500"
-            />
-          </div>
-        ))}
+      <div>
+        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Symptoms (1–5)</h4>
+        <div className="space-y-2">
+          {SYMPTOMS.map(s => (
+            <Slider key={s.key} label={s.label} color={s.color}
+              value={symptoms[s.key]}
+              onChange={v => setSymptoms(p => ({ ...p, [s.key]: v }))} />
+          ))}
+        </div>
       </div>
 
       {/* Cravings */}
-      <div className="mb-6">
-        <h4 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Cravings</h4>
+      <div>
+        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Cravings</h4>
         <div className="grid grid-cols-3 gap-2">
-          {cravingOptions.map(option => (
-            <button
-              key={option.label}
-              onClick={() => toggleCraving(option.label)}
-              className={`p-2 rounded-lg border text-xs font-medium transition-all duration-200 flex items-center justify-center gap-1
-                ${cravings.includes(option.label)
-                  ? 'bg-orange-400 text-white border-orange-500 shadow-sm'
-                  : 'bg-white text-gray-500 border-gray-200 hover:bg-orange-50'}`}
-            >
-              <span>{option.emoji}</span>
-              <span>{option.label}</span>
+          {CRAVINGS.map(c => (
+            <button key={c.label} onClick={() => toggle(cravings, setCravings, c.label)}
+              className={`p-2.5 rounded-xl border text-xs font-semibold transition-all active:scale-90 flex items-center justify-center gap-1.5
+                ${cravings.includes(c.label) ? 'bg-orange-400 text-white border-orange-500 shadow-sm' : 'bg-white dark:bg-orange-900/10 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-orange-900/30 hover:bg-orange-50'}`}>
+              <span>{c.emoji}</span><span>{c.label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Energy */}
-      <div className="mb-6">
+      <div>
         <div className="flex justify-between items-center mb-2">
-           <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Energy Level</h4>
-           <span className="text-xs font-bold bg-yellow-100 text-yellow-600 px-2 py-0.5 rounded-full border border-yellow-200">
-             {energy === 1 ? 'Low' : energy === 5 ? 'High' : energy} ⚡
-           </span>
+          <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Energy Level</h4>
+          <span className="text-xs font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800">
+            {energy === 1 ? 'Drained' : energy === 2 ? 'Low' : energy === 3 ? 'Okay' : energy === 4 ? 'Good' : 'High'} ⚡
+          </span>
         </div>
-        <input 
-          type="range" 
-          min="1" 
-          max="5" 
-          value={energy} 
-          onChange={(e) => setEnergy(Number(e.target.value))}
-          className="w-full h-2 bg-yellow-200 rounded-lg appearance-none cursor-pointer accent-yellow-400"
+        <input type="range" min="1" max="5" value={energy} onChange={e => setEnergy(Number(e.target.value))}
+          className="w-full h-2 bg-yellow-200 dark:bg-yellow-900 rounded-lg appearance-none cursor-pointer accent-yellow-400" />
+      </div>
+
+      {/* Notes */}
+      <div>
+        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Notes</h4>
+        <textarea
+          value={notes}
+          onChange={e => setNotes(e.target.value)}
+          rows={2}
+          maxLength={200}
+          placeholder="How are you feeling? Any extra details..."
+          className="w-full p-3 text-sm rounded-xl bg-pink-50 dark:bg-purple-900/20 border border-pink-100 dark:border-purple-800/30 outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-purple-500 resize-none text-gray-700 dark:text-gray-300 placeholder-gray-300 dark:placeholder-gray-600"
         />
       </div>
 
-      <button 
-        onClick={handleSave}
-        disabled={saved}
-        className={`w-full py-4 rounded-xl text-white font-extrabold text-lg shadow-lg shadow-pink-200 transform transition-all active:scale-95 duration-200 flex items-center justify-center gap-2
-          ${saved ? 'bg-green-500' : 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600'}`}
-      >
-        {saved ? 'Saved! ✅' : 'Save Log 💾'}
+      <button onClick={handleSave} disabled={saved}
+        className={`w-full py-4 rounded-2xl text-white font-extrabold text-base shadow-lg transition-all active:scale-95
+          ${saved ? 'bg-emerald-500' : 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-pink-200 dark:shadow-pink-900/30'}`}>
+        {saved ? '✅ Saved!' : 'Save Log 💾'}
       </button>
     </div>
-  );
-};
+  )
+}
 
-export default Logger;
+export default Logger

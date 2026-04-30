@@ -1,69 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
-const RemedyCard = ({ symptoms, onClose, autoShow = true }) => {
-  const [showRemedy, setShowRemedy] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+const RemedyCard = ({ symptoms, autoShow = true }) => {
+  const [show,      setShow]      = useState(false)
+  const [dismissed, setDismissed] = useState(false)
 
-  // Check if any symptom is high (4 or 5)
-  const hasHighSymptoms = symptoms && (
-    symptoms.cramps >= 4 || 
-    symptoms.bloating >= 4 || 
-    symptoms.headache >= 4
-  );
+  const hasHigh = symptoms && (
+    symptoms.cramps >= 4 || symptoms.bloating >= 4 || symptoms.headache >= 4 ||
+    symptoms.backPain >= 4 || symptoms.nausea >= 4
+  )
 
-  // Show automatically when high symptoms detected
   useEffect(() => {
-    if (autoShow && hasHighSymptoms && !dismissed) {
-      setShowRemedy(true);
-    }
-  }, [hasHighSymptoms, autoShow, dismissed]);
+    if (autoShow && hasHigh && !dismissed) setShow(true)
+  }, [hasHigh, autoShow, dismissed])
 
-  if (!symptoms || !hasHighSymptoms) {
-    return null;
-  }
+  if (!symptoms || !hasHigh) return null
 
-  const getRemedy = () => {
-    const remedies = [];
-    if (symptoms.cramps >= 4) remedies.push("🫖 Ginger tea or a hot water bottle can help with cramps!");
-    if (symptoms.bloating >= 4) remedies.push("💧 Avoid salty foods and drink plenty of water for bloating.");
-    if (symptoms.headache >= 4) remedies.push("😴 Rest in a dark room and stay hydrated for headache relief.");
-    return remedies.join(' ');
-  };
+  const tips = [
+    symptoms.cramps   >= 4 && '🫖 Ginger tea or a hot water bottle can ease cramps',
+    symptoms.bloating >= 4 && '💧 Avoid salty foods and drink plenty of water',
+    symptoms.headache >= 4 && '😴 Rest in a dark room and stay hydrated',
+    symptoms.backPain >= 4 && '🧘 Gentle stretching or a heat pad for back pain',
+    symptoms.nausea   >= 4 && '🌿 Ginger tea or peppermint helps with nausea',
+  ].filter(Boolean)
 
-  const handleClose = () => {
-    setShowRemedy(false);
-    setDismissed(true);
-  };
-
-  if (!showRemedy) {
-    return (
-      <div className="bg-orange-50 rounded-2xl p-4 mb-4 border border-orange-100 shadow-sm animate-fade-in">
-        <div className="flex items-center justify-between">
-          <span className="text-orange-600 font-medium">Not feeling great? 😣</span>
-          <button 
-            onClick={() => setShowRemedy(true)}
-            className="bg-orange-400 text-white px-3 py-1 rounded-full text-sm font-bold hover:bg-orange-500 transition"
-          >
-            Need a remedy?
-          </button>
-        </div>
+  if (!show) return (
+    <div className="bg-orange-50 dark:bg-orange-900/20 rounded-2xl p-4 border border-orange-100 dark:border-orange-800/30">
+      <div className="flex items-center justify-between">
+        <span className="text-orange-600 dark:text-orange-300 font-medium text-sm">Not feeling great? 😣</span>
+        <button onClick={() => setShow(true)}
+          className="bg-orange-400 text-white px-3 py-1.5 rounded-full text-xs font-bold hover:bg-orange-500 transition-colors active:scale-95">
+          See remedy
+        </button>
       </div>
-    );
-  }
+    </div>
+  )
 
   return (
-    <div className="bg-gradient-to-r from-orange-50 to-rose-50 rounded-2xl p-4 mb-4 border border-orange-200 shadow-lg animate-bounce-in">
-      <div className="flex justify-between items-start mb-2">
-        <h4 className="font-bold text-orange-600 flex items-center gap-2">
-          🌿 Remedy Suggestion
-        </h4>
-        <button onClick={handleClose} className="text-gray-400 hover:text-gray-600 text-lg">✕</button>
+    <div className="bg-gradient-to-br from-orange-50 to-rose-50 dark:from-orange-900/20 dark:to-rose-900/20 rounded-2xl p-4 border border-orange-200 dark:border-orange-800/40 shadow-sm animate-fade-in">
+      <div className="flex justify-between items-start mb-3">
+        <h4 className="font-bold text-orange-600 dark:text-orange-300 flex items-center gap-2 text-sm">🌿 Remedy Suggestions</h4>
+        <button onClick={() => { setShow(false); setDismissed(true) }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-lg leading-none">✕</button>
       </div>
-      <p className="text-gray-700 text-sm leading-relaxed">
-        {getRemedy()}
-      </p>
+      <div className="space-y-2">
+        {tips.map((tip, i) => (
+          <p key={i} className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{tip}</p>
+        ))}
+      </div>
     </div>
-  );
-};
+  )
+}
 
-export default RemedyCard;
+export default RemedyCard

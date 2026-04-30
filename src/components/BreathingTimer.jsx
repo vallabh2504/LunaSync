@@ -1,132 +1,78 @@
 import { useState, useEffect } from 'react'
 
-function BreathingTimer() {
-  const [isActive, setIsActive] = useState(false)
-  const [phase, setPhase] = useState('idle') // idle, inhale, hold, exhale
+const PHASES = [
+  { key: 'inhale', label: 'Breathe In',  icon: '🌸', dur: 4, color: 'bg-cyan-200 dark:bg-cyan-900 shadow-cyan-300' },
+  { key: 'hold',   label: 'Hold',        icon: '✨', dur: 4, color: 'bg-purple-200 dark:bg-purple-900 shadow-purple-300' },
+  { key: 'exhale', label: 'Breathe Out', icon: '💨', dur: 4, color: 'bg-blue-200 dark:bg-blue-900 shadow-blue-300' },
+]
+
+const BreathingTimer = () => {
+  const [active,    setActive]    = useState(false)
+  const [phaseIdx,  setPhaseIdx]  = useState(0)
   const [countdown, setCountdown] = useState(0)
+  const [cycles,    setCycles]    = useState(0)
+
+  const phase = PHASES[phaseIdx]
 
   useEffect(() => {
-    let interval
-    if (isActive && countdown > 0) {
-      interval = setInterval(() => {
-        setCountdown((prev) => prev - 1)
-      }, 1000)
-    } else if (isActive && countdown === 0) {
-      // Cycle through phases
-      if (phase === 'inhale') {
-        setPhase('hold')
-        setCountdown(4)
-      } else if (phase === 'hold') {
-        setPhase('exhale')
-        setCountdown(4)
-      } else if (phase === 'exhale') {
-        setPhase('inhale')
-        setCountdown(4)
-      }
+    if (!active) return
+    if (countdown > 0) {
+      const t = setTimeout(() => setCountdown(c => c - 1), 1000)
+      return () => clearTimeout(t)
     }
-    return () => clearInterval(interval)
-  }, [isActive, countdown, phase])
+    const nextIdx = (phaseIdx + 1) % PHASES.length
+    if (nextIdx === 0) setCycles(c => c + 1)
+    setPhaseIdx(nextIdx)
+    setCountdown(PHASES[nextIdx].dur)
+  }, [active, countdown, phaseIdx])
 
-  const startBreathing = () => {
-    setIsActive(true)
-    setPhase('inhale')
-    setCountdown(4)
-  }
+  const start = () => { setActive(true); setPhaseIdx(0); setCountdown(PHASES[0].dur); setCycles(0) }
+  const stop  = () => { setActive(false); setPhaseIdx(0); setCountdown(0) }
 
-  const stopBreathing = () => {
-    setIsActive(false)
-    setPhase('idle')
-    setCountdown(0)
-  }
-
-  const getAnimationClass = () => {
-    if (!isActive) return 'scale-100'
-    if (phase === 'inhale') return 'scale-110'
-    if (phase === 'hold') return 'scale-110'
-    if (phase === 'exhale') return 'scale-100'
-    return 'scale-100'
-  }
-
-  const getGlowClass = () => {
-    if (!isActive) return 'bg-purple-200'
-    if (phase === 'inhale') return 'bg-cyan-200 shadow-cyan-300'
-    if (phase === 'hold') return 'bg-purple-200 shadow-purple-300'
-    if (phase === 'exhale') return 'bg-blue-200 shadow-blue-300'
-    return 'bg-purple-200'
-  }
+  const scale = active && phase.key === 'inhale' ? 'scale-125' : active && phase.key === 'hold' ? 'scale-125' : 'scale-100'
 
   return (
-    <div className="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 rounded-2xl p-6 shadow-lg border-2 border-purple-200">
+    <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-2xl p-6 shadow-sm border-2 border-purple-100 dark:border-purple-800/50">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-purple-700 mb-1">
-          🌙 Quick Relief Timer
-        </h2>
-        <p className="text-purple-500 text-sm mb-4">Take a deep breath, Bujji 💜</p>
-        
-        {/* Breathing Circle */}
-        <div className="flex justify-center mb-4">
-          <div 
-            className={`
-              w-32 h-32 rounded-full flex items-center justify-center 
-              transition-all duration-1000 ease-in-out
-              ${getGlowClass()} shadow-lg
-              ${getAnimationClass()}
-            `}
-          >
+        <h2 className="text-lg font-bold text-purple-700 dark:text-purple-300 mb-0.5">🌙 Breathing Relief</h2>
+        <p className="text-purple-400 dark:text-purple-500 text-xs mb-5">4-4-4 box breathing technique</p>
+
+        {/* Circle */}
+        <div className="flex justify-center mb-5">
+          <div className={`w-32 h-32 rounded-full flex items-center justify-center shadow-lg transition-all duration-1000 ease-in-out ${active ? phase.color : 'bg-purple-100 dark:bg-purple-900'} ${scale}`}>
             <div className="text-center">
-              {isActive ? (
+              {active ? (
                 <>
-                  <p className="text-2xl font-bold text-purple-700">
-                    {phase === 'inhale' ? '🌸' : phase === 'hold' ? '✨' : '💨'}
-                  </p>
-                  <p className="text-sm font-medium text-purple-600 capitalize">
-                    {phase}
-                  </p>
-                  <p className="text-3xl font-bold text-purple-800">
-                    {countdown}
-                  </p>
+                  <p className="text-3xl mb-0.5">{phase.icon}</p>
+                  <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">{phase.label}</p>
+                  <p className="text-3xl font-black text-purple-800 dark:text-purple-200">{countdown}</p>
                 </>
               ) : (
-                <p className="text-4xl">🧘‍♀️</p>
+                <p className="text-5xl">🧘‍♀️</p>
               )}
             </div>
           </div>
         </div>
 
-        {/* Instructions */}
-        {isActive && (
-          <div className="bg-white/50 rounded-lg p-3 mb-4">
-            <p className="text-purple-700 text-sm">
-              {phase === 'inhale' && 'Breathe in slowly... 🌸'}
-              {phase === 'hold' && 'Hold it... ✨'}
-              {phase === 'exhale' && 'Breathe out slowly... 💨'}
-            </p>
-          </div>
+        {active && cycles > 0 && (
+          <p className="text-xs text-purple-400 dark:text-purple-500 mb-3">Round {cycles + 1}</p>
         )}
 
-        {/* Controls */}
         <div className="flex gap-3 justify-center">
-          {!isActive ? (
-            <button
-              onClick={startBreathing}
-              className="bg-gradient-to-r from-purple-400 to-pink-400 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg hover:scale-105 transition-all"
-            >
+          {!active ? (
+            <button onClick={start}
+              className="bg-gradient-to-r from-purple-400 to-pink-400 text-white px-8 py-2.5 rounded-full font-bold shadow-md hover:shadow-lg transition-all active:scale-95">
               ▶ Start
             </button>
           ) : (
-            <button
-              onClick={stopBreathing}
-              className="bg-gray-400 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:bg-gray-500 transition-all"
-            >
+            <button onClick={stop}
+              className="bg-gray-400 dark:bg-gray-600 text-white px-8 py-2.5 rounded-full font-bold shadow-md hover:bg-gray-500 transition-all active:scale-95">
               ⏹ Stop
             </button>
           )}
         </div>
 
-        {/* Lofi vibes text */}
-        <p className="text-xs text-purple-400 mt-3">
-          🎧 Close your eyes and relax...
-        </p>
+        <p className="text-xs text-purple-400 dark:text-purple-600 mt-4">🎧 Close your eyes and breathe slowly</p>
       </div>
     </div>
   )
