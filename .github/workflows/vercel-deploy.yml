@@ -1,0 +1,30 @@
+name: Deploy to Vercel
+
+# Triggers only when force-deploy is updated (not on every push)
+# Also supports manual trigger via GitHub Actions UI
+on:
+  push:
+    paths:
+      - 'force-deploy'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy to Vercel (production)
+        run: npx vercel deploy --prod --yes
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_DQ3wHdJuhc4YKHZz4Cl4WcXd
+          VERCEL_PROJECT_ID: prj_kg2SxMdrLICJarjTuQyOKYP3bTgG
