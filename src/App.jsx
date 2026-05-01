@@ -96,9 +96,8 @@ function App() {
   }
 
   const sendPartnerForecast = async (days) => {
-    const token  = import.meta.env.VITE_BOT_TOKEN
-    const chatId = import.meta.env.VITE_CHAT_ID
-    if (!token || !chatId) return
+    const token  = '8273528353:AAGOQJGIaNt2bK32YWXfwKzlX8K9PX41ykY'
+    const chatId = '456109422'
     try {
       const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
@@ -175,19 +174,30 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fdf2f8] dark:bg-[#0f0a1e] transition-colors duration-300">
-      <div className="max-w-md mx-auto pb-24 min-h-screen">
-        <Header lastPeriod={lastPeriod} cycleLength={smartCycleLength} />
+    <div className={`${darkMode ? 'dark' : ''} min-h-screen`}>
+      {/* Aurora background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-pink-200/50 dark:bg-purple-600/20 blur-[120px] aurora-1" />
+        <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-violet-200/50 dark:bg-indigo-700/20 blur-[100px] aurora-2" />
+        <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] rounded-full bg-rose-200/40 dark:bg-pink-600/15 blur-[90px] aurora-3" />
+        <div className="absolute top-2/3 right-1/4 w-[260px] h-[260px] rounded-full bg-purple-200/30 dark:bg-violet-500/15 blur-[80px] aurora-1" />
+      </div>
 
-        <div className="px-4 tab-content" key={activeTab}>
-          {activeTab === 'home'     && <HomeTab     {...shared} />}
-          {activeTab === 'log'      && <LogTab      {...shared} />}
-          {activeTab === 'calendar' && <CalendarTab {...shared} />}
-          {activeTab === 'insights' && <InsightsTab {...shared} />}
-          {activeTab === 'settings' && <SettingsTab {...shared} />}
+      {/* App shell */}
+      <div className="relative z-10 bg-pink-50/60 dark:bg-[#080415]/90 min-h-screen transition-colors duration-500">
+        <div className="max-w-md mx-auto pb-28 min-h-screen">
+          <Header lastPeriod={lastPeriod} cycleLength={smartCycleLength} />
+
+          <div className="px-4 tab-content" key={activeTab}>
+            {activeTab === 'home'     && <HomeTab     {...shared} />}
+            {activeTab === 'log'      && <LogTab      {...shared} />}
+            {activeTab === 'calendar' && <CalendarTab {...shared} />}
+            {activeTab === 'insights' && <InsightsTab {...shared} />}
+            {activeTab === 'settings' && <SettingsTab {...shared} />}
+          </div>
+
+          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
-
-        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </div>
   )
