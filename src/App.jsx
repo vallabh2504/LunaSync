@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import PinLock   from './components/PinLock'
 import BottomNav from './components/BottomNav'
 import Header    from './components/Header'
@@ -26,11 +26,48 @@ function App() {
   const [isLocked,      setIsLocked]      = useState(() => localStorage.getItem('pinEnabled') === 'true')
   const [activeTab,     setActiveTab]     = useState('home')
 
+  // ── Phase detection + CSS variable injection ─────────────────────
+  const PHASE_VARS = {
+    menstruation: { color: '#ff4477', glow: 'rgba(255,68,119,0.55)',   soft: 'rgba(255,68,119,0.18)',  from: '#ff4477', to: '#ff0044' },
+    follicular:   { color: '#a78bfa', glow: 'rgba(167,139,250,0.55)',  soft: 'rgba(167,139,250,0.18)', from: '#a78bfa', to: '#7c3aed' },
+    ovulation:    { color: '#2dd4bf', glow: 'rgba(45,212,191,0.55)',   soft: 'rgba(45,212,191,0.18)',  from: '#2dd4bf', to: '#0891b2' },
+    luteal:       { color: '#818cf8', glow: 'rgba(129,140,248,0.55)',  soft: 'rgba(129,140,248,0.18)', from: '#818cf8', to: '#4f46e5' },
+  }
+  const currentPhaseKey = (() => {
+    const diff = Math.floor((new Date() - new Date(lastPeriod)) / 86400000)
+    if (diff < 0) return 'follicular'
+    const day = (diff % smartCycleLength) + 1
+    if (day <= 5)  return 'menstruation'
+    if (day <= 13) return 'follicular'
+    if (day <= 16) return 'ovulation'
+    return 'luteal'
+  })()
+
+  useEffect(() => {
+    const vars = PHASE_VARS[currentPhaseKey]
+    const root = document.documentElement
+    root.style.setProperty('--phase-color', vars.color)
+    root.style.setProperty('--phase-glow',  vars.glow)
+    root.style.setProperty('--phase-soft',  vars.soft)
+    root.style.setProperty('--phase-from',  vars.from)
+    root.style.setProperty('--phase-to',    vars.to)
+  }, [currentPhaseKey])
+
   // ── Dark mode ────────────────────────────────────────────────────
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
     localStorage.setItem('darkMode', darkMode)
   }, [darkMode])
+
+  // ── Stars (generated once) ───────────────────────────────────────
+  const stars = useMemo(() => Array.from({ length: 90 }, (_, i) => ({
+    cx: Math.random() * 100,
+    cy: Math.random() * 100,
+    r:  Math.random() * 1.2 + 0.3,
+    op: Math.random() * 0.6 + 0.2,
+    dur: 2 + Math.random() * 4,
+    del: Math.random() * 5,
+  })), [])
 
   // ── Persist all state ────────────────────────────────────────────
   useEffect(() => {
@@ -175,16 +212,33 @@ function App() {
 
   return (
     <div className={`${darkMode ? 'dark' : ''} min-h-screen`}>
-      {/* Aurora background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-pink-200/50 dark:bg-purple-600/20 blur-[120px] aurora-1" />
-        <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-violet-200/50 dark:bg-indigo-700/20 blur-[100px] aurora-2" />
-        <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] rounded-full bg-rose-200/40 dark:bg-pink-600/15 blur-[90px] aurora-3" />
-        <div className="absolute top-2/3 right-1/4 w-[260px] h-[260px] rounded-full bg-purple-200/30 dark:bg-violet-500/15 blur-[80px] aurora-1" />
+      {/* ── LIGHT MODE: soft aurora ── */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none dark:hidden" aria-hidden="true">
+        <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-pink-200/50 blur-[120px] aurora-1" />
+        <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-violet-200/50 blur-[100px] aurora-2" />
+        <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] rounded-full bg-rose-200/40 blur-[90px] aurora-3" />
+      </div>
+
+      {/* ── DARK MODE: deep space ── */}
+      <div className="fixed inset-0 pointer-events-none hidden dark:block" aria-hidden="true">
+        {/* Star field */}
+        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          {stars.map((s, i) => (
+            <circle key={i} cx={`${s.cx}%`} cy={`${s.cy}%`} r={s.r} fill="white" opacity={s.op}
+              style={{ animation: `twinkle ${s.dur}s ease-in-out ${s.del}s infinite alternate` }} />
+          ))}
+        </svg>
+        {/* Nebula blobs */}
+        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-30 blur-[140px] aurora-1"
+          style={{ background: `radial-gradient(circle, var(--phase-from), transparent 70%)` }} />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full opacity-25 blur-[120px] aurora-2"
+          style={{ background: 'radial-gradient(circle, #6d28d9, transparent 70%)' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full opacity-15 blur-[100px] aurora-3"
+          style={{ background: 'radial-gradient(circle, #1e1b4b, #0d0822, transparent 70%)' }} />
       </div>
 
       {/* App shell */}
-      <div className="relative z-10 bg-pink-50/60 dark:bg-[#080415]/90 min-h-screen transition-colors duration-500">
+      <div className="relative z-10 bg-pink-50/60 space-bg min-h-screen transition-colors duration-500">
         <div className="max-w-md mx-auto pb-28 min-h-screen">
           <Header lastPeriod={lastPeriod} cycleLength={smartCycleLength} />
 
