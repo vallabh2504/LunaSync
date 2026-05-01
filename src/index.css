@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Phase CSS variables (defaults; App.jsx overrides per phase) ── */
+:root {
+  --phase-color:   #8B5CF6;
+  --phase-glow:    rgba(139,92,246,0.55);
+  --phase-from:    #8B5CF6;
+  --phase-to:      #6D28D9;
+  --phase-soft:    rgba(139,92,246,0.18);
+}
+
 @layer base {
   html {
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
@@ -18,8 +27,13 @@
   /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(236,72,153,0.35); border-radius: 4px; }
-  html.dark ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.4); }
+  ::-webkit-scrollbar-thumb { background: var(--phase-glow); border-radius: 4px; }
+
+  /* ── Star twinkle ── */
+  @keyframes twinkle {
+    0%,100% { opacity: 0.2; transform: scale(1); }
+    50%      { opacity: 0.9; transform: scale(1.4); }
+  }
 
   /* ── Aurora blob animations ── */
   @keyframes aurora1 {
@@ -40,6 +54,20 @@
   .aurora-2 { animation: aurora2 20s ease-in-out infinite; }
   .aurora-3 { animation: aurora3 13s ease-in-out infinite; }
 
+  /* ── Orb 3D rotation (for floating spheres) ── */
+  @keyframes orbFloat {
+    0%,100% { transform: translateY(0) scale(1); }
+    50%     { transform: translateY(-18px) scale(1.04); }
+  }
+  .orb-float { animation: orbFloat 7s ease-in-out infinite; }
+
+  /* ── Moon orb pulse (hero element) ── */
+  @keyframes moonPulse {
+    0%,100% { box-shadow: 0 0 60px var(--phase-glow), 0 0 120px var(--phase-soft), inset 0 1px 0 rgba(255,255,255,0.25); }
+    50%     { box-shadow: 0 0 90px var(--phase-glow), 0 0 180px var(--phase-soft), inset 0 1px 0 rgba(255,255,255,0.15); }
+  }
+  .moon-pulse { animation: moonPulse 3s ease-in-out infinite; }
+
   /* ── Tab transition (spring) ── */
   .tab-content { animation: tabIn 0.35s cubic-bezier(0.34,1.56,0.64,1); }
   @keyframes tabIn {
@@ -56,23 +84,30 @@
 
   /* ── Breathe (breathing timer circle) ── */
   @keyframes breatheIn {
-    from { transform: scale(1); box-shadow: 0 0 20px rgba(168,85,247,0.3); }
-    to   { transform: scale(1.28); box-shadow: 0 0 60px rgba(168,85,247,0.7), 0 0 100px rgba(236,72,153,0.4); }
+    from { transform: scale(1); box-shadow: 0 0 20px var(--phase-glow); }
+    to   { transform: scale(1.28); box-shadow: 0 0 70px var(--phase-glow), 0 0 120px var(--phase-soft); }
   }
   @keyframes breatheOut {
-    from { transform: scale(1.28); box-shadow: 0 0 60px rgba(168,85,247,0.7); }
-    to   { transform: scale(1); box-shadow: 0 0 20px rgba(168,85,247,0.3); }
+    from { transform: scale(1.28); box-shadow: 0 0 70px var(--phase-glow); }
+    to   { transform: scale(1); box-shadow: 0 0 20px var(--phase-glow); }
   }
   .breathe-in  { animation: breatheIn  4s ease-in-out forwards; }
-  .breathe-hold { transform: scale(1.28); box-shadow: 0 0 60px rgba(168,85,247,0.6), 0 0 100px rgba(236,72,153,0.3); }
+  .breathe-hold { transform: scale(1.28); box-shadow: 0 0 70px var(--phase-glow), 0 0 120px var(--phase-soft); }
   .breathe-out { animation: breatheOut 4s ease-in-out forwards; }
 
-  /* ── Pulse glow ── */
+  /* ── Pulse glow (uses phase var) ── */
   @keyframes pulseGlow {
-    0%,100% { box-shadow: 0 0 15px rgba(236,72,153,0.3); }
-    50%     { box-shadow: 0 0 40px rgba(236,72,153,0.6), 0 0 70px rgba(168,85,247,0.3); }
+    0%,100% { box-shadow: 0 0 15px var(--phase-soft); }
+    50%     { box-shadow: 0 0 40px var(--phase-glow), 0 0 70px var(--phase-soft); }
   }
   .pulse-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
+
+  /* ── Neon glow (nav active item) ── */
+  @keyframes neonGlow {
+    0%,100% { box-shadow: 0 0 8px var(--phase-glow), 0 4px 20px var(--phase-soft); }
+    50%     { box-shadow: 0 0 16px var(--phase-glow), 0 4px 36px var(--phase-soft); }
+  }
+  .neon-glow { animation: neonGlow 2s ease-in-out infinite; }
 
   /* ── Shimmer sweep on buttons ── */
   @keyframes shimmerSweep {
@@ -101,6 +136,10 @@
   @keyframes spinSlow { to { transform: rotate(360deg); } }
   .spin-slow { animation: spinSlow 18s linear infinite; }
 
+  /* ── Spin counter-slow ── */
+  @keyframes spinSlowRev { to { transform: rotate(-360deg); } }
+  .spin-slow-rev { animation: spinSlowRev 26s linear infinite; }
+
   /* ── Ring pulse ── */
   @keyframes ringPulse {
     0%,100% { opacity: 0.4; transform: scale(1); }
@@ -113,31 +152,76 @@
     -webkit-appearance: none;
     width: 20px; height: 20px;
     border-radius: 50%;
-    background: linear-gradient(135deg,#ec4899,#a855f7);
+    background: linear-gradient(135deg, var(--phase-from), var(--phase-to));
     cursor: pointer;
-    box-shadow: 0 0 0 4px rgba(236,72,153,0.2);
+    box-shadow: 0 0 0 4px var(--phase-soft);
     transition: box-shadow 0.2s;
   }
   input[type='range']::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 0 7px rgba(236,72,153,0.25);
+    box-shadow: 0 0 0 7px var(--phase-soft);
   }
 
-  /* ── Glass card (core design token) ── */
+  /* ── LIGHT MODE: clean glass card ── */
   .card {
-    @apply bg-white/70 dark:bg-white/[0.05] backdrop-blur-2xl rounded-2xl
-           border border-white/60 dark:border-white/10
-           shadow-[0_8px_32px_rgba(168,85,247,0.08)] dark:shadow-[0_8px_32px_rgba(168,85,247,0.15)];
+    @apply bg-white/70 backdrop-blur-2xl rounded-2xl
+           border border-white/60
+           shadow-[0_8px_32px_rgba(168,85,247,0.08)];
   }
+
+  /* ── DARK MODE: true liquid glass (deep space) ── */
+  .dark .card {
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-radius: 1rem;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 24px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+
   .card-glass {
-    @apply bg-white/60 dark:bg-white/[0.04] backdrop-blur-2xl rounded-2xl
-           border border-white/50 dark:border-white/10;
+    @apply bg-white/60 backdrop-blur-2xl rounded-2xl border border-white/50;
+  }
+  .dark .card-glass {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+  }
+
+  /* ── Nebula card (special hero cards) ── */
+  .dark .card-nebula {
+    background: linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(236,72,153,0.08) 100%);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 32px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
   }
 
   /* ── Gradient text ── */
   .text-gradient {
     @apply bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent;
   }
+  .dark .text-gradient {
+    background: linear-gradient(135deg, #f472b6, #a78bfa, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
   .text-gradient-gold {
     @apply bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-400 bg-clip-text text-transparent;
+  }
+
+  /* ── Phase gradient text (uses CSS vars) ── */
+  .text-phase {
+    background: linear-gradient(135deg, var(--phase-from), var(--phase-to));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Deep space background (dark mode only) ── */
+  .dark .space-bg {
+    background: linear-gradient(160deg, #060414 0%, #0d0822 40%, #080d1f 70%, #060414 100%);
   }
 }
