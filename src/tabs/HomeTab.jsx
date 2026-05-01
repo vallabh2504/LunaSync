@@ -34,7 +34,6 @@ const HomeTab = ({ lastPeriod, smartCycleLength, notificationPermission, request
 
       {/* Next period countdown */}
       <div className="card card-in rounded-2xl p-5 relative overflow-hidden">
-        {/* Subtle background glow */}
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-20 pointer-events-none"
           style={{ background: 'var(--phase-from)' }} />
 
@@ -65,7 +64,6 @@ const HomeTab = ({ lastPeriod, smartCycleLength, notificationPermission, request
           </div>
         </div>
 
-        {/* Progress bar */}
         <div className="h-2 rounded-full bg-gray-100 dark:bg-white/[0.06] overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-1000"

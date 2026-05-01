@@ -26,6 +26,20 @@ function App() {
   const [isLocked,      setIsLocked]      = useState(() => localStorage.getItem('pinEnabled') === 'true')
   const [activeTab,     setActiveTab]     = useState('home')
 
+  // ── Smart cycle length (rolling average of last 3 cycles) ────────
+  const smartCycleLength = (() => {
+    if (periodHistory.length >= 2) {
+      const recent  = periodHistory.slice(-4)
+      const lengths = []
+      for (let i = 1; i < recent.length; i++) {
+        const diff = Math.round((new Date(recent[i].startDate) - new Date(recent[i-1].startDate)) / 86400000)
+        if (diff > 15 && diff < 60) lengths.push(diff)
+      }
+      if (lengths.length) return Math.round(lengths.reduce((a,b) => a+b,0) / lengths.length)
+    }
+    return cycleLength
+  })()
+
   // ── Phase detection + CSS variable injection ─────────────────────
   const PHASE_VARS = {
     menstruation: { color: '#ff4477', glow: 'rgba(255,68,119,0.55)',   soft: 'rgba(255,68,119,0.18)',  from: '#ff4477', to: '#ff0044' },
@@ -82,20 +96,6 @@ function App() {
     localStorage.setItem('pinEnabled',     pinEnabled)
     if (pinCode) localStorage.setItem('pinCode', pinCode)
   }, [lastPeriod, cycleLength, logs, remedies, notifPerm, lastPartnerNotif, periodHistory, flowLog, pinEnabled, pinCode])
-
-  // ── Smart cycle length (rolling average of last 3 cycles) ────────
-  const smartCycleLength = (() => {
-    if (periodHistory.length >= 2) {
-      const recent  = periodHistory.slice(-4)
-      const lengths = []
-      for (let i = 1; i < recent.length; i++) {
-        const diff = Math.round((new Date(recent[i].startDate) - new Date(recent[i-1].startDate)) / 86400000)
-        if (diff > 15 && diff < 60) lengths.push(diff)
-      }
-      if (lengths.length) return Math.round(lengths.reduce((a,b) => a+b,0) / lengths.length)
-    }
-    return cycleLength
-  })()
 
   // ── Flow logging ─────────────────────────────────────────────────
   const handleFlowLog = (dateStr, intensity) => {

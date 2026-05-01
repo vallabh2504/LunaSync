@@ -53,15 +53,13 @@ const Header = ({ lastPeriod, cycleLength }) => {
         {today}
       </p>
 
-      {/* ── Moon Orb hero ── */}
+      {/* Moon Orb hero */}
       <div className="relative flex justify-center items-center mb-6" style={{ height: '220px' }}>
 
         {/* Outer orbital ring — counter-rotating */}
         <div
           className="absolute w-[200px] h-[200px] rounded-full spin-slow-rev pointer-events-none"
-          style={{
-            border: '1px dashed rgba(255,255,255,0.12)',
-          }}
+          style={{ border: '1px dashed rgba(255,255,255,0.12)' }}
         />
 
         {/* Inner orbital ring — slow rotating with phase color */}
@@ -83,23 +81,15 @@ const Header = ({ lastPeriod, cycleLength }) => {
             boxShadow: '0 0 60px var(--phase-glow), 0 0 120px var(--phase-soft), inset 0 1px 0 rgba(255,255,255,0.25), inset -2px -4px 20px rgba(0,0,0,0.4)',
           }}
         >
-          {/* Glass highlight edge */}
+          {/* Glass highlight */}
           <div
             className="absolute inset-0 rounded-full pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.25) 0%, transparent 60%)',
-            }}
+            style={{ background: 'radial-gradient(ellipse at 35% 25%, rgba(255,255,255,0.25) 0%, transparent 60%)' }}
           />
-          {/* Cycle day number */}
-          <p
-            className="text-white font-black leading-none z-10"
-            style={{ fontSize: '52px', textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}
-          >
+          <p className="text-white font-black leading-none z-10" style={{ fontSize: '52px', textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
             {cycleDay}
           </p>
-          <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest z-10 -mt-1">
-            Day
-          </p>
+          <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest z-10 -mt-1">Day</p>
         </div>
 
         {/* Ambient glow under orb */}
