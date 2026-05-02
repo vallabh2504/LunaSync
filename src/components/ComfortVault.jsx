@@ -13,9 +13,9 @@ const MESSAGES = [
 const ComfortVault = ({ lastPeriod, cycleLength }) => {
   const [message, setMessage] = useState(null)
 
-  const daysSince  = Math.floor((new Date() - new Date(lastPeriod)) / 86400000)
-  const cycleDay   = ((daysSince % cycleLength) + cycleLength) % cycleLength + 1
-  const inPeriod   = cycleDay <= 5 && daysSince >= 0
+  const daysSince = Math.floor((new Date() - new Date(lastPeriod)) / 86400000)
+  const cycleDay  = ((daysSince % cycleLength) + cycleLength) % cycleLength + 1
+  const inPeriod  = cycleDay <= 5 && daysSince >= 0
 
   useEffect(() => {
     if (!inPeriod) { setMessage(null); return }
@@ -34,14 +34,26 @@ const ComfortVault = ({ lastPeriod, cycleLength }) => {
   if (!inPeriod || !message) return null
 
   return (
-    <div className="bg-gradient-to-br from-pink-400 via-rose-400 to-purple-400 rounded-2xl p-6 shadow-xl">
-      <div className="text-center">
-        <h2 className="text-xl font-bold text-white mb-1">💝 Comfort Vault</h2>
-        <p className="text-white/70 text-xs mb-4">Your message for today</p>
-        <div className="bg-white/25 backdrop-blur-sm rounded-2xl p-4">
-          <p className="text-lg font-semibold text-white leading-relaxed">{message}</p>
+    <div className="rounded-2xl p-5 relative overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #C4798D 0%, #A85E72 100%)', boxShadow: '0 6px 28px rgba(196,121,141,0.30)' }}>
+      {/* Decorative circles */}
+      <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full pointer-events-none"
+        style={{ background: 'rgba(255,255,255,0.08)' }} />
+      <div className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full pointer-events-none"
+        style={{ background: 'rgba(255,255,255,0.06)' }} />
+
+      <div className="relative">
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(255,255,255,0.7)' }}>
+          A message for you 💝
+        </p>
+        <div className="rounded-xl p-4 mb-3" style={{ background: 'rgba(255,255,255,0.15)' }}>
+          <p className="font-display text-lg italic font-medium text-white leading-relaxed">
+            "{message}"
+          </p>
         </div>
-        <p className="text-white/60 text-xs mt-3">Day {cycleDay} • A new message unlocks each day 🌸</p>
+        <p className="text-[10px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          Day {cycleDay} · A new message unlocks each day
+        </p>
       </div>
     </div>
   )

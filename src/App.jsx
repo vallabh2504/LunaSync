@@ -1,30 +1,30 @@
-import { useState, useEffect, useMemo } from 'react'
-import PinLock   from './components/PinLock'
-import BottomNav from './components/BottomNav'
-import Header    from './components/Header'
+import { useState, useEffect } from 'react'
+import PinLock     from './components/PinLock'
+import BottomNav   from './components/BottomNav'
 import HomeTab     from './tabs/HomeTab'
 import LogTab      from './tabs/LogTab'
 import CalendarTab from './tabs/CalendarTab'
 import InsightsTab from './tabs/InsightsTab'
+import SelfCareTab from './tabs/SelfCareTab'
 import SettingsTab from './tabs/SettingsTab'
+import WelcomeScreen from './components/WelcomeScreen'
 
 function App() {
-  // ── Existing state ──────────────────────────────────────────────
-  const [lastPeriod, setLastPeriod] = useState(() => localStorage.getItem('lastPeriod') || new Date().toISOString().split('T')[0])
-  const [cycleLength, setCycleLength] = useState(() => Number(localStorage.getItem('cycleLength')) || 28)
-  const [logs,       setLogs]       = useState(() => { const s = localStorage.getItem('logs');     return s ? JSON.parse(s) : [] })
-  const [remedies,   setRemedies]   = useState(() => { const s = localStorage.getItem('remedies'); return s ? JSON.parse(s) : [] })
-  const [notifPerm,  setNotifPerm]  = useState(() => localStorage.getItem('notifPerm') || 'default')
+  // ── Core state ───────────────────────────────────────────────────
+  const [lastPeriod, setLastPeriod]         = useState(() => localStorage.getItem('lastPeriod') || new Date().toISOString().split('T')[0])
+  const [cycleLength, setCycleLength]       = useState(() => Number(localStorage.getItem('cycleLength')) || 28)
+  const [logs, setLogs]                     = useState(() => { const s = localStorage.getItem('logs');          return s ? JSON.parse(s) : [] })
+  const [remedies, setRemedies]             = useState(() => { const s = localStorage.getItem('remedies');      return s ? JSON.parse(s) : [] })
+  const [notifPerm, setNotifPerm]           = useState(() => localStorage.getItem('notifPerm') || 'default')
   const [lastPartnerNotif, setLastPartnerNotif] = useState(() => localStorage.getItem('lastPartnerNotif') || null)
-
-  // ── New state ────────────────────────────────────────────────────
-  const [periodHistory, setPeriodHistory] = useState(() => { const s = localStorage.getItem('periodHistory'); return s ? JSON.parse(s) : [] })
-  const [flowLog,       setFlowLog]       = useState(() => { const s = localStorage.getItem('flowLog');       return s ? JSON.parse(s) : {} })
-  const [darkMode,      setDarkMode]      = useState(() => localStorage.getItem('darkMode') === 'true')
-  const [pinEnabled,    setPinEnabled]    = useState(() => localStorage.getItem('pinEnabled') === 'true')
-  const [pinCode,       setPinCode]       = useState(() => localStorage.getItem('pinCode') || null)
-  const [isLocked,      setIsLocked]      = useState(() => localStorage.getItem('pinEnabled') === 'true')
-  const [activeTab,     setActiveTab]     = useState('home')
+  const [periodHistory, setPeriodHistory]   = useState(() => { const s = localStorage.getItem('periodHistory'); return s ? JSON.parse(s) : [] })
+  const [flowLog, setFlowLog]               = useState(() => { const s = localStorage.getItem('flowLog');       return s ? JSON.parse(s) : {} })
+  const [pinEnabled, setPinEnabled]         = useState(() => localStorage.getItem('pinEnabled') === 'true')
+  const [pinCode, setPinCode]               = useState(() => localStorage.getItem('pinCode') || null)
+  const [isLocked, setIsLocked]             = useState(() => localStorage.getItem('pinEnabled') === 'true')
+  const [activeTab, setActiveTab]           = useState('home')
+  const [hasSeenWelcome, setHasSeenWelcome] = useState(() => localStorage.getItem('hasSeenWelcome') === 'true')
+  const [showLogModal, setShowLogModal]     = useState(false)
 
   // ── Smart cycle length (rolling average of last 3 cycles) ────────
   const smartCycleLength = (() => {
@@ -40,13 +40,7 @@ function App() {
     return cycleLength
   })()
 
-  // ── Phase detection + CSS variable injection ─────────────────────
-  const PHASE_VARS = {
-    menstruation: { color: '#ff4477', glow: 'rgba(255,68,119,0.55)',   soft: 'rgba(255,68,119,0.18)',  from: '#ff4477', to: '#ff0044' },
-    follicular:   { color: '#a78bfa', glow: 'rgba(167,139,250,0.55)',  soft: 'rgba(167,139,250,0.18)', from: '#a78bfa', to: '#7c3aed' },
-    ovulation:    { color: '#2dd4bf', glow: 'rgba(45,212,191,0.55)',   soft: 'rgba(45,212,191,0.18)',  from: '#2dd4bf', to: '#0891b2' },
-    luteal:       { color: '#818cf8', glow: 'rgba(129,140,248,0.55)',  soft: 'rgba(129,140,248,0.18)', from: '#818cf8', to: '#4f46e5' },
-  }
+  // ── Phase detection ──────────────────────────────────────────────
   const currentPhaseKey = (() => {
     const diff = Math.floor((new Date() - new Date(lastPeriod)) / 86400000)
     if (diff < 0) return 'follicular'
@@ -57,43 +51,17 @@ function App() {
     return 'luteal'
   })()
 
+  // ── Persist state ────────────────────────────────────────────────
   useEffect(() => {
-    const vars = PHASE_VARS[currentPhaseKey]
-    const root = document.documentElement
-    root.style.setProperty('--phase-color', vars.color)
-    root.style.setProperty('--phase-glow',  vars.glow)
-    root.style.setProperty('--phase-soft',  vars.soft)
-    root.style.setProperty('--phase-from',  vars.from)
-    root.style.setProperty('--phase-to',    vars.to)
-  }, [currentPhaseKey])
-
-  // ── Dark mode ────────────────────────────────────────────────────
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', darkMode)
-    localStorage.setItem('darkMode', darkMode)
-  }, [darkMode])
-
-  // ── Stars (generated once) ───────────────────────────────────────
-  const stars = useMemo(() => Array.from({ length: 90 }, (_, i) => ({
-    cx: Math.random() * 100,
-    cy: Math.random() * 100,
-    r:  Math.random() * 1.2 + 0.3,
-    op: Math.random() * 0.6 + 0.2,
-    dur: 2 + Math.random() * 4,
-    del: Math.random() * 5,
-  })), [])
-
-  // ── Persist all state ────────────────────────────────────────────
-  useEffect(() => {
-    localStorage.setItem('lastPeriod',     lastPeriod)
-    localStorage.setItem('cycleLength',    cycleLength)
-    localStorage.setItem('logs',           JSON.stringify(logs))
-    localStorage.setItem('remedies',       JSON.stringify(remedies))
-    localStorage.setItem('notifPerm',      notifPerm)
-    localStorage.setItem('lastPartnerNotif', lastPartnerNotif)
-    localStorage.setItem('periodHistory',  JSON.stringify(periodHistory))
-    localStorage.setItem('flowLog',        JSON.stringify(flowLog))
-    localStorage.setItem('pinEnabled',     pinEnabled)
+    localStorage.setItem('lastPeriod',      lastPeriod)
+    localStorage.setItem('cycleLength',     cycleLength)
+    localStorage.setItem('logs',            JSON.stringify(logs))
+    localStorage.setItem('remedies',        JSON.stringify(remedies))
+    localStorage.setItem('notifPerm',       notifPerm)
+    localStorage.setItem('lastPartnerNotif',lastPartnerNotif)
+    localStorage.setItem('periodHistory',   JSON.stringify(periodHistory))
+    localStorage.setItem('flowLog',         JSON.stringify(flowLog))
+    localStorage.setItem('pinEnabled',      pinEnabled)
     if (pinCode) localStorage.setItem('pinCode', pinCode)
   }, [lastPeriod, cycleLength, logs, remedies, notifPerm, lastPartnerNotif, periodHistory, flowLog, pinEnabled, pinCode])
 
@@ -101,13 +69,10 @@ function App() {
   const handleFlowLog = (dateStr, intensity) => {
     setFlowLog(prev => ({ ...prev, [dateStr]: intensity }))
     if (intensity === 'none') return
-
-    const logDate    = new Date(dateStr)
-    const lastDate   = new Date(lastPeriod)
-    const daysDiff   = Math.round((logDate - lastDate) / 86400000)
-    const isNewCycle = daysDiff > 15 || daysDiff < 0
-
-    if (isNewCycle) {
+    const logDate  = new Date(dateStr)
+    const lastDate = new Date(lastPeriod)
+    const daysDiff = Math.round((logDate - lastDate) / 86400000)
+    if (daysDiff > 15 || daysDiff < 0) {
       const alreadyRecorded = periodHistory.some(p =>
         Math.abs(Math.round((logDate - new Date(p.startDate)) / 86400000)) < 15
       )
@@ -124,12 +89,6 @@ function App() {
     const perm = await Notification.requestPermission()
     setNotifPerm(perm)
     return perm
-  }
-
-  const sendBrowserNotif = (title, body) => {
-    if (Notification.permission === 'granted') {
-      new Notification(title, { body, icon: '/pwa-192x192.svg', tag: 'lunasync-alert', requireInteraction: true })
-    }
   }
 
   const sendPartnerForecast = async (days) => {
@@ -151,15 +110,13 @@ function App() {
       const next     = new Date(new Date(lastPeriod).getTime() + smartCycleLength * 86400000)
       const daysLeft = Math.ceil((next - new Date()) / 86400000)
       if (daysLeft !== 2) return
-
       if (notifPerm === 'granted') {
         const key = 'browserNotif2Days'
         if (!localStorage.getItem(key)) {
-          sendBrowserNotif('🌸 LunaSync', 'Prep your kit, Bujji! Period in 2 days 💕')
+          new Notification('🌸 LunaSync', { body: 'Prep your kit, Bujji! Period in 2 days 💕', icon: '/pwa-192x192.svg' })
           localStorage.setItem(key, new Date().toISOString())
         }
       }
-
       const todayStr = new Date().toISOString().split('T')[0]
       if (!lastPartnerNotif || !lastPartnerNotif.startsWith(todayStr)) sendPartnerForecast(2)
     }
@@ -176,7 +133,7 @@ function App() {
   const handleSaveLog = (newLog) => {
     setLogs(prev => [...prev, newLog])
     const { cramps, bloating, headache, backPain, nausea } = newLog.symptoms || {}
-    const date    = new Date().toISOString().split('T')[0]
+    const date = new Date().toISOString().split('T')[0]
     const entries = [
       cramps   >= 4 && { date, type: 'cramps',   remedy: '🫖 Ginger tea or hot water bottle for cramps' },
       bloating >= 4 && { date, type: 'bloating', remedy: '💧 Avoid salty foods, drink water for bloating' },
@@ -189,70 +146,60 @@ function App() {
 
   const lastSymptoms = logs.length ? logs[logs.length - 1].symptoms : null
 
+  // ── Welcome screen ───────────────────────────────────────────────
+  if (!hasSeenWelcome) {
+    return (
+      <WelcomeScreen onBegin={() => {
+        localStorage.setItem('hasSeenWelcome', 'true')
+        setHasSeenWelcome(true)
+      }} />
+    )
+  }
+
   // ── PIN lock screen ──────────────────────────────────────────────
   if (isLocked && pinEnabled && pinCode) {
-    return (
-      <div className={darkMode ? 'dark' : ''}>
-        <PinLock pinCode={pinCode} onUnlock={() => setIsLocked(false)} />
-      </div>
-    )
+    return <PinLock pinCode={pinCode} onUnlock={() => setIsLocked(false)} />
   }
 
   const shared = {
     lastPeriod, setLastPeriod,
     cycleLength, setCycleLength, smartCycleLength,
+    currentPhaseKey,
     logs, remedies, lastSymptoms,
     periodHistory, flowLog, onFlowLog: handleFlowLog,
     onSaveLog: handleSaveLog,
-    darkMode, setDarkMode,
     pinEnabled, setPinEnabled, pinCode, setPinCode,
     notificationPermission: notifPerm,
     requestNotificationPermission: requestNotifPermission,
+    showLogModal, setShowLogModal,
+    setActiveTab,
   }
 
   return (
-    <div className={`${darkMode ? 'dark' : ''} min-h-screen`}>
-      {/* ── LIGHT MODE: soft aurora ── */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none dark:hidden" aria-hidden="true">
-        <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-pink-200/50 blur-[120px] aurora-1" />
-        <div className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full bg-violet-200/50 blur-[100px] aurora-2" />
-        <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] rounded-full bg-rose-200/40 blur-[90px] aurora-3" />
-      </div>
-
-      {/* ── DARK MODE: deep space ── */}
-      <div className="fixed inset-0 pointer-events-none hidden dark:block" aria-hidden="true">
-        {/* Star field */}
-        <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
-          {stars.map((s, i) => (
-            <circle key={i} cx={`${s.cx}%`} cy={`${s.cy}%`} r={s.r} fill="white" opacity={s.op}
-              style={{ animation: `twinkle ${s.dur}s ease-in-out ${s.del}s infinite alternate` }} />
-          ))}
-        </svg>
-        {/* Nebula blobs */}
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-30 blur-[140px] aurora-1"
-          style={{ background: `radial-gradient(circle, var(--phase-from), transparent 70%)` }} />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full opacity-25 blur-[120px] aurora-2"
-          style={{ background: 'radial-gradient(circle, #6d28d9, transparent 70%)' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full opacity-15 blur-[100px] aurora-3"
-          style={{ background: 'radial-gradient(circle, #1e1b4b, #0d0822, transparent 70%)' }} />
+    <div className="min-h-screen" style={{ backgroundColor: '#FAF5F2' }}>
+      {/* Soft background blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full opacity-40"
+          style={{ background: 'radial-gradient(circle, #F5DDE0 0%, transparent 70%)' }} />
+        <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full opacity-35"
+          style={{ background: 'radial-gradient(circle, #B8CBBF 0%, transparent 70%)' }} />
+        <div className="absolute top-1/2 right-0 w-48 h-48 rounded-full opacity-25"
+          style={{ background: 'radial-gradient(circle, #F5DDE0 0%, transparent 70%)' }} />
       </div>
 
       {/* App shell */}
-      <div className="relative z-10 bg-pink-50/60 space-bg min-h-screen transition-colors duration-500">
-        <div className="max-w-md mx-auto pb-28 min-h-screen">
-          <Header lastPeriod={lastPeriod} cycleLength={smartCycleLength} />
-
-          <div className="px-4 tab-content" key={activeTab}>
-            {activeTab === 'home'     && <HomeTab     {...shared} />}
-            {activeTab === 'log'      && <LogTab      {...shared} />}
-            {activeTab === 'calendar' && <CalendarTab {...shared} />}
-            {activeTab === 'insights' && <InsightsTab {...shared} />}
-            {activeTab === 'settings' && <SettingsTab {...shared} />}
-          </div>
-
-          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="relative z-10 max-w-md mx-auto min-h-screen pb-28">
+        <div className="tab-content" key={activeTab}>
+          {activeTab === 'home'     && <HomeTab     {...shared} />}
+          {activeTab === 'calendar' && <CalendarTab {...shared} />}
+          {activeTab === 'log'      && <LogTab      {...shared} />}
+          {activeTab === 'insights' && <InsightsTab {...shared} />}
+          {activeTab === 'selfcare' && <SelfCareTab {...shared} />}
+          {activeTab === 'settings' && <SettingsTab {...shared} />}
         </div>
       </div>
+
+      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   )
 }

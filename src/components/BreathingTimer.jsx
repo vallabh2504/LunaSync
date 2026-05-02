@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 
 const PHASES = [
-  { key: 'inhale',  label: 'Breathe In',  icon: '🌸', dur: 4, gradient: 'from-cyan-400 to-sky-500',     glow: 'rgba(34,211,238,0.6)' },
-  { key: 'hold',    label: 'Hold',        icon: '✨', dur: 4, gradient: 'from-violet-400 to-purple-600', glow: 'rgba(139,92,246,0.6)' },
-  { key: 'exhale',  label: 'Breathe Out', icon: '💨', dur: 6, gradient: 'from-pink-400 to-rose-500',    glow: 'rgba(244,114,182,0.6)' },
+  { key: 'inhale',  label: 'Breathe In',  icon: '🌸', dur: 4, gradient: 'from-luna-blush to-luna-rose',   glow: 'rgba(196,121,141,0.45)' },
+  { key: 'hold',    label: 'Hold',        icon: '✨', dur: 4, gradient: 'from-luna-sage to-luna-sage',     glow: 'rgba(143,168,149,0.45)' },
+  { key: 'exhale',  label: 'Breathe Out', icon: '💨', dur: 6, gradient: 'from-luna-rose to-luna-rose-deep',glow: 'rgba(168,94,114,0.45)' },
 ]
 
 const SOUNDS = [
@@ -188,28 +188,21 @@ const BreathingTimer = () => {
   } : {}
 
   return (
-    <div className="card p-5 card-in">
+    <div className="rounded-2xl p-5"
+      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
       <div className="text-center">
-        <h2 className="text-base font-black text-gradient mb-0.5">🌙 Breathing Relief</h2>
-        <p className="text-[11px] text-purple-400 dark:text-purple-500 mb-4 font-medium">
-          Inhale 4s · Hold 4s · Exhale 6s
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: '#9E8E8E' }}>
+          Breathing exercise
         </p>
 
         {/* Breathing circle */}
         <div className="flex justify-center mb-5 relative" style={{ height: '160px' }}>
           {active && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-44 h-44 rounded-full border-2 border-purple-300/30 ring-pulse absolute" />
-            </div>
-          )}
-
-          {/* SVG progress ring */}
-          {active && (
             <svg className="absolute inset-0 m-auto w-40 h-40" viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
-              <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
+              <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(232,180,188,0.20)" strokeWidth="3" />
               <circle
                 cx="50" cy="50" r="46" fill="none"
-                stroke={phaseIdx === 0 ? '#22d3ee' : phaseIdx === 1 ? '#a78bfa' : '#f472b6'}
+                stroke={phaseIdx === 0 ? '#C4798D' : phaseIdx === 1 ? '#8FA895' : '#A85E72'}
                 strokeWidth="3.5" strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 46}`}
                 strokeDashoffset={`${2 * Math.PI * 46 * (1 - progress / 100)}`}
@@ -220,38 +213,45 @@ const BreathingTimer = () => {
 
           <div
             className={`w-36 h-36 rounded-full flex items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10
-              ${active
-                ? `bg-gradient-to-br ${phase.gradient} shadow-2xl`
-                : 'bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/50 dark:to-indigo-900/50'
-              } ${phase.key === 'inhale' ? 'breathe-in' : phase.key === 'hold' ? '' : active ? 'breathe-out' : ''}`}
-            style={{ transition: 'background 0.8s ease', ...circleStyle }}
+              ${phase.key === 'inhale' ? 'breathe-in' : phase.key === 'hold' ? '' : active ? 'breathe-out' : ''}`}
+            style={{
+              background: active
+                ? phaseIdx === 0 ? 'linear-gradient(135deg, #E8B4BC, #C4798D)'
+                  : phaseIdx === 1 ? 'linear-gradient(135deg, #B8CBBF, #8FA895)'
+                  : 'linear-gradient(135deg, #C4798D, #A85E72)'
+                : '#F5DDE0',
+              boxShadow: active ? `0 0 40px ${phase.glow}` : 'none',
+              transition: 'background 0.8s ease',
+            }}
           >
             {active ? (
               <div className="text-center text-white select-none">
-                <p className="text-3xl mb-0.5 drop-shadow">{phase.icon}</p>
+                <p className="text-3xl mb-0.5">{phase.icon}</p>
                 <p className="text-[11px] font-bold opacity-90 tracking-wide uppercase">{phase.label}</p>
-                <p className="text-4xl font-black tabular-nums leading-none mt-0.5">{countdown}</p>
+                <p className="font-display text-4xl font-semibold tabular-nums leading-none mt-0.5">{countdown}</p>
               </div>
             ) : (
-              <span className="text-5xl float select-none">🧘‍♀️</span>
+              <span className="text-5xl select-none">🧘‍♀️</span>
             )}
           </div>
         </div>
 
         {active && cycles > 0 && (
-          <p className="text-xs text-purple-400 mb-2 font-semibold card-in">Round {cycles + 1} 🌀</p>
+          <p className="text-xs mb-2 font-semibold" style={{ color: '#C4798D' }}>Round {cycles + 1} 🌀</p>
         )}
 
         {/* Start / Stop */}
         <div className="flex gap-3 justify-center mb-4">
           {!active ? (
             <button onClick={start}
-              className="btn-shimmer bg-gradient-to-r from-purple-500 to-pink-500 text-white px-10 py-3 rounded-full font-black text-sm shadow-lg shadow-purple-400/40 hover:scale-105 transition-all active:scale-95">
+              className="px-10 py-3 rounded-full font-bold text-sm transition-all active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #C4798D, #A85E72)', color: '#FFFFFF', boxShadow: '0 4px 16px rgba(196,121,141,0.30)', fontFamily: 'Nunito, sans-serif' }}>
               ▶ Start
             </button>
           ) : (
             <button onClick={stop}
-              className="bg-white/20 dark:bg-white/10 backdrop-blur-sm border border-white/30 text-gray-600 dark:text-gray-300 px-10 py-3 rounded-full font-bold text-sm hover:bg-white/30 transition-all active:scale-95">
+              className="px-10 py-3 rounded-full font-bold text-sm transition-all active:scale-95"
+              style={{ background: '#F5DDE0', color: '#C4798D', fontFamily: 'Nunito, sans-serif' }}>
               ⏹ Stop
             </button>
           )}
@@ -259,12 +259,12 @@ const BreathingTimer = () => {
 
         {/* Volume slider */}
         {active && (
-          <div className="flex items-center gap-2 mb-4 px-4 card-in">
-            <span className="text-sm select-none">🔈</span>
+          <div className="flex items-center gap-2 mb-4 px-4">
+            <span className="text-sm">🔈</span>
             <input type="range" min="0" max="100" value={volume}
               onChange={e => setVolume(Number(e.target.value))}
-              className="flex-1 h-1.5 appearance-none bg-purple-200 dark:bg-purple-900/50 rounded-full outline-none cursor-pointer" />
-            <span className="text-sm select-none">🔊</span>
+              className="flex-1 appearance-none rounded-full outline-none cursor-pointer" style={{ height: '4px' }} />
+            <span className="text-sm">🔊</span>
           </div>
         )}
 
@@ -277,22 +277,23 @@ const BreathingTimer = () => {
                   setSoundId(s.id)
                   if (active) { stop(); setTimeout(() => { setSoundId(s.id) }, 50) }
                 }}
-                className={`flex flex-col items-center px-3 py-2 rounded-xl text-center transition-all duration-200 min-w-[68px] active:scale-95
-                  ${soundId === s.id
-                    ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-400/50 dark:border-purple-500/40 scale-105 shadow-md'
-                    : 'bg-white/40 dark:bg-white/5 border border-transparent hover:border-purple-200 dark:hover:border-purple-700/50'
-                  }`}>
+                className="flex flex-col items-center px-3 py-2 rounded-xl text-center transition-all duration-200 min-w-[68px] active:scale-95"
+                style={{
+                  background: soundId === s.id ? '#F5DDE0' : '#FAF5F2',
+                  border: `1.5px solid ${soundId === s.id ? '#E8B4BC' : 'rgba(232,180,188,0.20)'}`,
+                  transform: soundId === s.id ? 'scale(1.05)' : 'scale(1)',
+                }}>
                 <span className="text-xl mb-0.5">{s.emoji}</span>
-                <span className={`text-[10px] font-bold leading-tight ${soundId === s.id ? 'text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-gray-500'}`}>
+                <span className="text-[10px] font-bold leading-tight" style={{ color: soundId === s.id ? '#C4798D' : '#9E8E8E' }}>
                   {s.name}
                 </span>
-                <span className="text-[9px] text-gray-400 dark:text-gray-600 mt-0.5">{s.desc}</span>
+                <span className="text-[9px] mt-0.5" style={{ color: '#9E8E8E', opacity: 0.7 }}>{s.desc}</span>
               </button>
             ))}
           </div>
         </div>
 
-        <p className="text-[10px] text-purple-400/50 mt-3">🎧 Headphones recommended</p>
+        <p className="text-[10px] mt-3" style={{ color: '#9E8E8E', opacity: 0.6 }}>🎧 Headphones recommended</p>
       </div>
     </div>
   )

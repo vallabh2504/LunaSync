@@ -33,22 +33,21 @@ const MissYou = () => {
   }
 
   return (
-    <div className="card p-5 card-in relative overflow-hidden">
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-pink-400/20 rounded-full blur-2xl pointer-events-none" />
-
-      <h3 className="font-bold text-gray-400 dark:text-gray-500 mb-3 flex items-center gap-2 text-xs uppercase tracking-widest">
-        💌 Send Love
-      </h3>
-
+    <div className="rounded-2xl p-4"
+      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+      <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#9E8E8E' }}>
+        Send love 💌
+      </p>
       <button
         onClick={send}
         disabled={sending}
-        className={`btn-shimmer w-full py-4 rounded-2xl text-white font-black text-base shadow-lg transition-all duration-300 active:scale-95
-          ${sending
-            ? 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed'
-            : 'bg-gradient-to-r from-red-400 via-pink-500 to-rose-400 shadow-pink-400/40 hover:shadow-pink-400/60 hover:scale-[1.02] pulse-glow'
-          }`}
-      >
+        className="w-full py-3.5 rounded-full font-bold text-sm transition-all active:scale-95"
+        style={{
+          background: sending ? '#E8B4BC' : 'linear-gradient(135deg, #C4798D, #A85E72)',
+          color: '#FFFFFF',
+          boxShadow: sending ? 'none' : '0 4px 16px rgba(196,121,141,0.30)',
+          fontFamily: 'Nunito, sans-serif',
+        }}>
         {sending ? (
           <span className="flex items-center justify-center gap-2">
             <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin inline-block" />
@@ -56,13 +55,14 @@ const MissYou = () => {
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2">
-            <span className="float">💝</span> Miss You
+            💝 Miss You
           </span>
         )}
       </button>
 
       {status && (
-        <p className="text-center text-sm mt-3 font-semibold text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-pink-500/10 border border-pink-100 dark:border-pink-500/20 p-2.5 rounded-xl card-in">
+        <p className="text-center text-xs mt-3 font-semibold py-2 rounded-xl"
+          style={{ background: '#F5DDE0', color: '#C4798D' }}>
           {status}
         </p>
       )}

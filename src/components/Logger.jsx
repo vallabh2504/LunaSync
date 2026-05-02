@@ -14,21 +14,32 @@ const CRAVINGS = [
 ]
 
 const SYMPTOMS = [
-  { key: 'cramps',   label: 'Cramps',           color: 'accent-pink-500' },
-  { key: 'bloating', label: 'Bloating',          color: 'accent-purple-500' },
-  { key: 'headache', label: 'Headache',          color: 'accent-rose-500' },
-  { key: 'backPain', label: 'Back Pain',         color: 'accent-orange-400' },
-  { key: 'nausea',   label: 'Nausea',            color: 'accent-indigo-400' },
+  { key: 'cramps',   label: 'Cramps'    },
+  { key: 'bloating', label: 'Bloating'  },
+  { key: 'headache', label: 'Headache'  },
+  { key: 'backPain', label: 'Back pain' },
+  { key: 'nausea',   label: 'Nausea'   },
 ]
 
-const Slider = ({ label, value, onChange, color }) => (
-  <div className="bg-pink-50 dark:bg-purple-900/20 p-3 rounded-xl border border-pink-100 dark:border-purple-800/40">
-    <div className="flex justify-between items-center mb-1.5">
-      <label className="text-xs font-bold text-gray-500 dark:text-gray-400">{label}</label>
-      <span className="text-xs font-black text-pink-500 dark:text-purple-300 bg-white dark:bg-purple-900/50 px-2 py-0.5 rounded-full border border-pink-100 dark:border-purple-700">{value}</span>
+const Section = ({ title, children }) => (
+  <div>
+    <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#9E8E8E' }}>{title}</p>
+    {children}
+  </div>
+)
+
+const Slider = ({ label, value, onChange }) => (
+  <div className="py-2">
+    <div className="flex justify-between items-center mb-2">
+      <span className="text-sm font-medium" style={{ color: '#3D3035' }}>{label}</span>
+      <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
+        style={{ background: '#F5DDE0', color: '#C4798D' }}>{value}/5</span>
     </div>
-    <input type="range" min="1" max="5" value={value} onChange={e => onChange(Number(e.target.value))}
-      className={`w-full h-2 bg-pink-200 dark:bg-purple-800 rounded-lg appearance-none cursor-pointer ${color}`} />
+    <input type="range" min="1" max="5" value={value}
+      onChange={e => onChange(Number(e.target.value))}
+      className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+      style={{ background: `linear-gradient(to right, #C4798D ${(value-1)*25}%, #F5DDE0 ${(value-1)*25}%)` }}
+    />
   </div>
 )
 
@@ -46,115 +57,159 @@ const Logger = ({ onSaveLog }) => {
     setArr(prev => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val])
 
   const handleSave = () => {
-    onSaveLog({ timestamp: new Date().toISOString(), mood, cravings, energy, water, sleep, symptoms, notes })
+    onSaveLog({ timestamp: new Date().toISOString(), date: new Date().toISOString().split('T')[0], mood, cravings, energy, water, sleep, symptoms, notes })
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
 
   return (
-    <div className="card p-5 space-y-5">
-      <h3 className="text-lg font-bold text-pink-500 dark:text-pink-400 flex items-center gap-2">
-        <span className="bg-pink-100 dark:bg-pink-900 p-2 rounded-xl text-xl">📝</span> Log Today
-      </h3>
-
+    <div className="space-y-5">
       {/* Water & Sleep */}
-      <div className="bg-pink-50 dark:bg-purple-900/20 p-4 rounded-2xl border border-pink-100 dark:border-purple-800/30 space-y-4">
-        <div>
+      <div className="rounded-2xl p-4 space-y-4"
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+        <Section title="Water intake">
           <div className="grid grid-cols-8 gap-1.5 mb-1.5">
             {Array.from({ length: 8 }, (_, i) => i + 1).map(i => (
               <button key={i} onClick={() => setWater(i === water ? i - 1 : i)}
-                className={`h-9 rounded-lg text-sm font-bold transition-all active:scale-90
-                  ${water >= i ? 'bg-blue-400 text-white shadow-sm' : 'bg-white dark:bg-blue-900/20 text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-blue-900'}`}>
+                className="h-9 rounded-xl text-sm font-bold transition-all active:scale-90"
+                style={{
+                  background: water >= i ? '#2196F3' : '#F5DDE0',
+                  color: water >= i ? '#FFFFFF' : '#C4798D',
+                }}>
                 {water >= i ? '💧' : ''}
               </button>
             ))}
           </div>
-          <p className="text-xs font-bold text-blue-500 text-center">Water ({water}/8 cups)</p>
-        </div>
-        <div>
+          <p className="text-xs font-semibold text-center" style={{ color: '#9E8E8E' }}>{water}/8 glasses</p>
+        </Section>
+        <Section title="Sleep hours">
           <div className="grid grid-cols-8 gap-1.5 mb-1.5">
             {Array.from({ length: 8 }, (_, i) => i + 1).map(i => (
               <button key={i} onClick={() => setSleep(i === sleep ? i - 1 : i)}
-                className={`h-9 rounded-lg text-sm font-bold transition-all active:scale-90
-                  ${sleep >= i ? 'bg-indigo-400 text-white shadow-sm' : 'bg-white dark:bg-indigo-900/20 text-gray-300 dark:text-gray-600 border border-gray-100 dark:border-indigo-900'}`}>
+                className="h-9 rounded-xl text-sm font-bold transition-all active:scale-90"
+                style={{
+                  background: sleep >= i ? '#7C6EBD' : '#F5DDE0',
+                  color: sleep >= i ? '#FFFFFF' : '#C4798D',
+                }}>
                 {sleep >= i ? '🌙' : ''}
               </button>
             ))}
           </div>
-          <p className="text-xs font-bold text-indigo-500 text-center">Sleep ({sleep}/8 hrs)</p>
-        </div>
+          <p className="text-xs font-semibold text-center" style={{ color: '#9E8E8E' }}>{sleep}/8 hours</p>
+        </Section>
       </div>
 
       {/* Mood */}
-      <div>
-        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Mood</h4>
-        <div className="grid grid-cols-4 gap-2">
-          {MOODS.map(m => (
-            <button key={m.label} onClick={() => toggle(mood, setMood, m.label)}
-              className={`p-2.5 rounded-2xl border transition-all active:scale-90 flex flex-col items-center gap-1
-                ${mood.includes(m.label) ? 'bg-pink-500 text-white border-pink-600 shadow-md' : 'bg-gray-50 dark:bg-purple-900/10 text-gray-600 dark:text-gray-300 border-gray-100 dark:border-purple-800/30 hover:bg-pink-50'}`}>
-              <span className="text-2xl">{m.emoji}</span>
-              <span className="text-[10px] font-bold">{m.label}</span>
-            </button>
-          ))}
-        </div>
+      <div className="rounded-2xl p-4"
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+        <Section title="How are you feeling?">
+          <div className="grid grid-cols-4 gap-2">
+            {MOODS.map(m => (
+              <button key={m.label} onClick={() => toggle(mood, setMood, m.label)}
+                className="py-3 rounded-2xl flex flex-col items-center gap-1 transition-all active:scale-90"
+                style={{
+                  background: mood.includes(m.label) ? '#C4798D' : '#FAF5F2',
+                  border: `1.5px solid ${mood.includes(m.label) ? '#C4798D' : 'rgba(232,180,188,0.30)'}`,
+                }}>
+                <span className="text-2xl">{m.emoji}</span>
+                <span className="text-[10px] font-bold" style={{ color: mood.includes(m.label) ? '#FFFFFF' : '#9E8E8E' }}>
+                  {m.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </Section>
       </div>
 
       {/* Symptoms */}
-      <div>
-        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Symptoms (1–5)</h4>
-        <div className="space-y-2">
-          {SYMPTOMS.map(s => (
-            <Slider key={s.key} label={s.label} color={s.color}
-              value={symptoms[s.key]}
-              onChange={v => setSymptoms(p => ({ ...p, [s.key]: v }))} />
-          ))}
-        </div>
+      <div className="rounded-2xl p-4"
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+        <Section title="Symptoms (1–5)">
+          <div className="divide-y" style={{ borderColor: 'rgba(232,180,188,0.18)' }}>
+            {SYMPTOMS.map(s => (
+              <Slider key={s.key} label={s.label}
+                value={symptoms[s.key]}
+                onChange={v => setSymptoms(p => ({ ...p, [s.key]: v }))} />
+            ))}
+          </div>
+        </Section>
       </div>
 
       {/* Cravings */}
-      <div>
-        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Cravings</h4>
-        <div className="grid grid-cols-3 gap-2">
-          {CRAVINGS.map(c => (
-            <button key={c.label} onClick={() => toggle(cravings, setCravings, c.label)}
-              className={`p-2.5 rounded-xl border text-xs font-semibold transition-all active:scale-90 flex items-center justify-center gap-1.5
-                ${cravings.includes(c.label) ? 'bg-orange-400 text-white border-orange-500 shadow-sm' : 'bg-white dark:bg-orange-900/10 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-orange-900/30 hover:bg-orange-50'}`}>
-              <span>{c.emoji}</span><span>{c.label}</span>
-            </button>
-          ))}
-        </div>
+      <div className="rounded-2xl p-4"
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+        <Section title="Cravings">
+          <div className="grid grid-cols-3 gap-2">
+            {CRAVINGS.map(c => (
+              <button key={c.label} onClick={() => toggle(cravings, setCravings, c.label)}
+                className="py-2.5 rounded-xl flex items-center justify-center gap-1.5 text-xs font-semibold transition-all active:scale-90"
+                style={{
+                  background: cravings.includes(c.label) ? '#F5DDE0' : '#FAF5F2',
+                  color: cravings.includes(c.label) ? '#C4798D' : '#9E8E8E',
+                  border: `1.5px solid ${cravings.includes(c.label) ? '#E8B4BC' : 'rgba(232,180,188,0.25)'}`,
+                }}>
+                <span>{c.emoji}</span><span>{c.label}</span>
+              </button>
+            ))}
+          </div>
+        </Section>
       </div>
 
       {/* Energy */}
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Energy Level</h4>
-          <span className="text-xs font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800">
-            {energy === 1 ? 'Drained' : energy === 2 ? 'Low' : energy === 3 ? 'Okay' : energy === 4 ? 'Good' : 'High'} ⚡
-          </span>
-        </div>
-        <input type="range" min="1" max="5" value={energy} onChange={e => setEnergy(Number(e.target.value))}
-          className="w-full h-2 bg-yellow-200 dark:bg-yellow-900 rounded-lg appearance-none cursor-pointer accent-yellow-400" />
+      <div className="rounded-2xl p-4"
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+        <Section title="Energy level">
+          <div className="flex justify-between items-center mb-3">
+            {[
+              { v: 1, label: 'Drained', icon: '😩' },
+              { v: 2, label: 'Low',     icon: '😔' },
+              { v: 3, label: 'Okay',    icon: '😐' },
+              { v: 4, label: 'Good',    icon: '🙂' },
+              { v: 5, label: 'High',    icon: '⚡' },
+            ].map(({ v, label, icon }) => (
+              <button key={v} onClick={() => setEnergy(v)}
+                className="flex flex-col items-center gap-1 transition-all active:scale-90"
+                style={{ opacity: energy === v ? 1 : 0.4 }}>
+                <span className="text-xl">{icon}</span>
+                <span className="text-[10px] font-semibold" style={{ color: energy === v ? '#C4798D' : '#9E8E8E' }}>{label}</span>
+              </button>
+            ))}
+          </div>
+        </Section>
       </div>
 
       {/* Notes */}
-      <div>
-        <h4 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Notes</h4>
-        <textarea
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-          rows={2}
-          maxLength={200}
-          placeholder="How are you feeling? Any extra details..."
-          className="w-full p-3 text-sm rounded-xl bg-pink-50 dark:bg-purple-900/20 border border-pink-100 dark:border-purple-800/30 outline-none focus:ring-2 focus:ring-pink-300 dark:focus:ring-purple-500 resize-none text-gray-700 dark:text-gray-300 placeholder-gray-300 dark:placeholder-gray-600"
-        />
+      <div className="rounded-2xl p-4"
+        style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+        <Section title="Notes">
+          <textarea
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+            rows={3}
+            maxLength={200}
+            placeholder="How are you feeling? Any extra details..."
+            className="w-full p-3 text-sm rounded-xl resize-none outline-none"
+            style={{
+              background: '#FAF5F2',
+              border: '1.5px solid rgba(232,180,188,0.30)',
+              color: '#3D3035',
+              fontFamily: 'Nunito, sans-serif',
+              lineHeight: '1.6',
+            }}
+          />
+        </Section>
       </div>
 
+      {/* Save */}
       <button onClick={handleSave} disabled={saved}
-        className={`w-full py-4 rounded-2xl text-white font-extrabold text-base shadow-lg transition-all active:scale-95
-          ${saved ? 'bg-emerald-500' : 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-pink-200 dark:shadow-pink-900/30'}`}>
-        {saved ? '✅ Saved!' : 'Save Log 💾'}
+        className="w-full py-4 rounded-full font-bold text-sm transition-all active:scale-95"
+        style={{
+          background: saved ? '#8FA895' : 'linear-gradient(135deg, #C4798D, #A85E72)',
+          color: '#FFFFFF',
+          boxShadow: saved ? 'none' : '0 6px 24px rgba(196,121,141,0.35)',
+          fontFamily: 'Nunito, sans-serif',
+        }}>
+        {saved ? '✓ Saved!' : 'Save today\'s log'}
       </button>
     </div>
   )
