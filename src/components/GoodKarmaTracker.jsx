@@ -1,76 +1,83 @@
 import { useState, useEffect } from 'react'
 
 const GoodKarmaTracker = () => {
-  const [wins, setWins]   = useState(() => {
+  const [wins, setWins]         = useState(() => {
     const s = localStorage.getItem('goodKarmaWins')
     return s ? JSON.parse(s) : []
   })
-  const [input,       setInput]       = useState('')
+  const [input, setInput]       = useState('')
   const [celebration, setCelebration] = useState(false)
 
   useEffect(() => { localStorage.setItem('goodKarmaWins', JSON.stringify(wins)) }, [wins])
 
-  const todayStr  = new Date().toISOString().split('T')[0]
-  const todayWin  = wins.find(w => w.date === todayStr)
+  const todayStr = new Date().toISOString().split('T')[0]
+  const todayWin = wins.find(w => w.date === todayStr)
 
   const submit = (e) => {
     e.preventDefault()
     if (!input.trim()) return
-    const win = { date: todayStr, text: input.trim(), ts: new Date().toISOString() }
-    setWins(prev => [...prev.filter(w => w.date !== todayStr), win])
+    setWins(prev => [...prev.filter(w => w.date !== todayStr), { date: todayStr, text: input.trim(), ts: new Date().toISOString() }])
     setInput('')
     setCelebration(true)
     setTimeout(() => setCelebration(false), 3000)
   }
 
   return (
-    <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-900/20 dark:via-yellow-900/20 dark:to-orange-900/20 rounded-2xl p-6 shadow-sm border-2 border-amber-200 dark:border-amber-800/40">
-      <div className="text-center">
-        <h2 className="text-lg font-bold text-amber-700 dark:text-amber-300 mb-0.5">✨ Good Karma Tracker</h2>
-        <p className="text-amber-500 dark:text-amber-500 text-xs mb-4">Log your small win for today!</p>
+    <div className="rounded-2xl p-4"
+      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+      <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#9E8E8E' }}>
+        Daily win ✨
+      </p>
 
-        {celebration ? (
-          <div className="animate-bounce mb-4">
-            <div className="bg-gradient-to-r from-amber-400 to-orange-400 rounded-2xl p-4">
-              <p className="text-3xl mb-1">🎉</p>
-              <p className="text-lg font-bold text-white">Nuvvu Thop Bujji! 🌟</p>
-              <p className="text-white/80 text-sm">Super proud of you! 💪</p>
-            </div>
-          </div>
-        ) : todayWin ? (
-          <div className="bg-amber-200/50 dark:bg-amber-800/30 rounded-2xl p-4 mb-4">
-            <p className="text-amber-700 dark:text-amber-400 font-medium text-xs mb-1">Today's Win</p>
-            <p className="text-base font-bold text-amber-900 dark:text-amber-200">🎯 {todayWin.text}</p>
-            <p className="text-xs text-amber-500 dark:text-amber-500 mt-1.5">Great job, Bujji! 🌟</p>
-          </div>
-        ) : (
-          <form onSubmit={submit} className="mb-4">
-            <input
-              type="text" value={input} onChange={e => setInput(e.target.value)}
-              placeholder="e.g., I drank all 8 glasses 💧"
-              className="w-full px-4 py-3 rounded-xl border-2 border-amber-200 dark:border-amber-700 focus:border-amber-400 dark:focus:border-amber-500 outline-none text-sm bg-white/80 dark:bg-amber-900/20 dark:text-amber-200 dark:placeholder-amber-700 mb-3"
-              maxLength={80}
-            />
-            <button type="submit" disabled={!input.trim()}
-              className="bg-gradient-to-r from-amber-400 to-orange-400 text-white px-7 py-2.5 rounded-full font-bold shadow-md hover:shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-              Log My Win ✓
-            </button>
-          </form>
-        )}
+      {celebration ? (
+        <div className="text-center py-3">
+          <div className="text-3xl mb-1">🎉</div>
+          <p className="font-semibold text-sm" style={{ color: '#C4798D' }}>Nuvvu Thop Bujji!</p>
+          <p className="text-xs mt-0.5" style={{ color: '#9E8E8E' }}>Super proud of you!</p>
+        </div>
+      ) : todayWin ? (
+        <div className="rounded-xl p-3" style={{ background: '#F5DDE0' }}>
+          <p className="text-xs font-semibold mb-1" style={{ color: '#9E8E8E' }}>Today's win</p>
+          <p className="text-sm font-semibold" style={{ color: '#C4798D' }}>🎯 {todayWin.text}</p>
+        </div>
+      ) : (
+        <form onSubmit={submit} className="flex gap-2">
+          <input
+            type="text" value={input} onChange={e => setInput(e.target.value)}
+            placeholder="e.g., I drank all 8 glasses 💧"
+            className="flex-1 px-3 py-2.5 rounded-xl text-sm outline-none"
+            style={{
+              background: '#FAF5F2',
+              border: '1.5px solid rgba(232,180,188,0.35)',
+              color: '#3D3035',
+              fontFamily: 'Nunito, sans-serif',
+            }}
+            maxLength={80}
+          />
+          <button type="submit" disabled={!input.trim()}
+            className="px-4 rounded-xl font-bold text-sm transition-all active:scale-95 flex-shrink-0"
+            style={{
+              background: input.trim() ? 'linear-gradient(135deg, #C4798D, #A85E72)' : '#F5DDE0',
+              color: input.trim() ? '#FFFFFF' : '#C4798D',
+            }}>
+            Log ✓
+          </button>
+        </form>
+      )}
 
-        {wins.length > 0 && (
-          <div className="pt-3 border-t border-amber-200 dark:border-amber-800/40">
-            <p className="text-[10px] text-amber-500 dark:text-amber-600 mb-2 uppercase tracking-widest">Recent wins</p>
-            <div className="flex flex-wrap gap-1.5 justify-center">
-              {wins.slice(-5).reverse().map((w, i) => (
-                <span key={i} className="text-xs bg-amber-100 dark:bg-amber-800/30 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded-full">
-                  {w.text}
-                </span>
-              ))}
-            </div>
+      {wins.length > 0 && !celebration && (
+        <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(232,180,188,0.20)' }}>
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: '#9E8E8E' }}>Recent wins</p>
+          <div className="flex flex-wrap gap-1.5">
+            {wins.slice(-4).reverse().map((w, i) => (
+              <span key={i} className="text-xs px-2.5 py-1 rounded-full font-medium"
+                style={{ background: '#F5DDE0', color: '#C4798D' }}>
+                {w.text.length > 25 ? w.text.substring(0, 25) + '…' : w.text}
+              </span>
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

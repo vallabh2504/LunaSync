@@ -1,7 +1,6 @@
 const PHASE_TIPS = {
   menstruation: {
-    title: 'Menstruation Phase',
-    color: 'from-rose-400 to-pink-500',
+    title: 'Phase tip',
     tips: [
       { icon: '🫖', text: 'Ginger or chamomile tea can ease cramps naturally' },
       { icon: '🌡️', text: 'A heating pad on your lower belly works wonders' },
@@ -12,8 +11,7 @@ const PHASE_TIPS = {
     ],
   },
   follicular: {
-    title: 'Follicular Phase',
-    color: 'from-violet-400 to-purple-500',
+    title: 'Phase tip',
     tips: [
       { icon: '🚀', text: 'Energy is rising — great time to start new projects' },
       { icon: '🥗', text: 'Fermented foods & greens support estrogen metabolism' },
@@ -24,20 +22,18 @@ const PHASE_TIPS = {
     ],
   },
   ovulation: {
-    title: 'Ovulation Phase',
-    color: 'from-teal-400 to-emerald-500',
+    title: 'Phase tip',
     tips: [
       { icon: '✨', text: 'You are literally glowing — confidence is peaking' },
       { icon: '🥦', text: 'Cruciferous veggies help metabolise excess estrogen' },
       { icon: '🏃', text: 'Peak athletic performance — go for your hardest workout' },
       { icon: '💬', text: 'Communication and charisma are strongest this week' },
-      { icon: '🌿', text: 'Fertile window is open — this is ovulation day' },
+      { icon: '🌿', text: 'Fertile window is open — this is your peak' },
       { icon: '🍓', text: 'Antioxidant-rich berries protect your eggs' },
     ],
   },
   luteal: {
-    title: 'Luteal Phase',
-    color: 'from-indigo-400 to-purple-600',
+    title: 'Phase tip',
     tips: [
       { icon: '🌙', text: 'Slow down — your body needs more rest now' },
       { icon: '🥜', text: 'Magnesium-rich foods (nuts, seeds) ease PMS symptoms' },
@@ -50,9 +46,7 @@ const PHASE_TIPS = {
 }
 
 const getPhase = (lastPeriod, cycleLength) => {
-  const today   = new Date()
-  const start   = new Date(lastPeriod)
-  const diff    = Math.floor((today - start) / 86400000)
+  const diff = Math.floor((new Date() - new Date(lastPeriod)) / 86400000)
   if (diff < 0) return 'follicular'
   const day = (diff % cycleLength) + 1
   if (day <= 5)  return 'menstruation'
@@ -62,23 +56,26 @@ const getPhase = (lastPeriod, cycleLength) => {
 }
 
 const DailyTips = ({ lastPeriod, cycleLength }) => {
-  const phase    = getPhase(lastPeriod, cycleLength)
-  const data     = PHASE_TIPS[phase]
-  const dayTip   = data.tips[new Date().getDate() % data.tips.length]
+  const phase  = getPhase(lastPeriod, cycleLength)
+  const data   = PHASE_TIPS[phase]
+  const dayTip = data.tips[new Date().getDate() % data.tips.length]
 
   return (
-    <div className={`bg-gradient-to-br ${data.color} rounded-2xl p-5 shadow-lg`}>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-white/80 text-xs font-bold uppercase tracking-widest">{data.title}</span>
-      </div>
-      <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-        <p className="text-3xl mb-2">{dayTip.icon}</p>
-        <p className="text-white font-semibold leading-relaxed">{dayTip.text}</p>
-      </div>
-      <div className="mt-3 flex gap-2 flex-wrap">
-        {data.tips.slice(0, 3).map((t, i) => (
-          <span key={i} className="text-white/70 text-xs bg-white/10 rounded-full px-2 py-1">{t.icon} {t.text.split(' ').slice(0,3).join(' ')}…</span>
-        ))}
+    <div className="rounded-2xl p-4"
+      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+      <p className="text-[10px] font-bold uppercase tracking-widest mb-3" style={{ color: '#9E8E8E' }}>
+        {data.title}
+      </p>
+      <div className="flex items-start gap-3">
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+          style={{ background: '#F5DDE0' }}>
+          {dayTip.icon}
+        </div>
+        <div>
+          <p className="text-sm leading-relaxed font-medium" style={{ color: '#3D3035' }}>
+            {dayTip.text}
+          </p>
+        </div>
       </div>
     </div>
   )

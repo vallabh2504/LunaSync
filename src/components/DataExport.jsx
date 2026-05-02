@@ -19,17 +19,13 @@ const DataExport = ({ logs, periodHistory, flowLog }) => {
       (l.cravings || []).join(';'),
       (l.notes || '').replace(/,/g, ';'),
     ].join(','))
-
     const csv  = [header, ...rows].join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
-    a.href     = url
-    a.download = `LunaSync_logs_${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
-    setDone('csv')
-    setTimeout(() => setDone(''), 2000)
+    a.href = url; a.download = `LunaSync_logs_${new Date().toISOString().split('T')[0]}.csv`
+    a.click(); URL.revokeObjectURL(url)
+    setDone('csv'); setTimeout(() => setDone(''), 2000)
   }
 
   const downloadSummary = () => {
@@ -49,39 +45,45 @@ const DataExport = ({ logs, periodHistory, flowLog }) => {
       '--- Period History ---',
       ...periodHistory.map(p => `Period started: ${p.startDate}`),
     ]
-
     const blob = new Blob([lines.join('\n')], { type: 'text/plain' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
-    a.href     = url
-    a.download = `LunaSync_summary_${new Date().toISOString().split('T')[0]}.txt`
-    a.click()
-    URL.revokeObjectURL(url)
-    setDone('txt')
-    setTimeout(() => setDone(''), 2000)
+    a.href = url; a.download = `LunaSync_summary_${new Date().toISOString().split('T')[0]}.txt`
+    a.click(); URL.revokeObjectURL(url)
+    setDone('txt'); setTimeout(() => setDone(''), 2000)
   }
 
   return (
-    <div className="card p-5">
-      <h3 className="font-bold text-gray-700 dark:text-gray-200 mb-1 flex items-center gap-2">
-        <span className="text-lg">💾</span> Export Data
-      </h3>
-      <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
-        Download your health data to share with your doctor or keep a backup
+    <div className="rounded-2xl p-4"
+      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+      <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#9E8E8E' }}>
+        Export data
       </p>
-      <div className="flex flex-col gap-3">
+      <p className="text-xs mb-4" style={{ color: '#9E8E8E' }}>
+        Download your health data for backup or your doctor
+      </p>
+      <div className="flex flex-col gap-2.5">
         <button onClick={downloadCSV}
-          className={`w-full py-3 rounded-xl font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2
-            ${done === 'csv' ? 'bg-green-500 text-white' : 'bg-pink-500 hover:bg-pink-600 text-white shadow-md shadow-pink-200 dark:shadow-pink-900/30'}`}>
-          {done === 'csv' ? '✅ Downloaded!' : '📊 Export as CSV (Spreadsheet)'}
+          className="w-full py-3 rounded-full font-bold text-sm transition-all active:scale-95"
+          style={{
+            background: done === 'csv' ? '#8FA895' : 'linear-gradient(135deg, #C4798D, #A85E72)',
+            color: '#FFFFFF',
+            boxShadow: done === 'csv' ? 'none' : '0 4px 16px rgba(196,121,141,0.30)',
+            fontFamily: 'Nunito, sans-serif',
+          }}>
+          {done === 'csv' ? '✓ Downloaded!' : '📊 Export as CSV'}
         </button>
         <button onClick={downloadSummary}
-          className={`w-full py-3 rounded-xl font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2
-            ${done === 'txt' ? 'bg-green-500 text-white' : 'bg-purple-500 hover:bg-purple-600 text-white shadow-md shadow-purple-200 dark:shadow-purple-900/30'}`}>
-          {done === 'txt' ? '✅ Downloaded!' : '📋 Export Summary (Text)'}
+          className="w-full py-3 rounded-full font-bold text-sm transition-all active:scale-95"
+          style={{
+            background: done === 'txt' ? '#8FA895' : '#F5DDE0',
+            color: done === 'txt' ? '#FFFFFF' : '#C4798D',
+            fontFamily: 'Nunito, sans-serif',
+          }}>
+          {done === 'txt' ? '✓ Downloaded!' : '📋 Export Summary'}
         </button>
       </div>
-      <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-3 text-center">
+      <p className="text-[10px] text-center mt-3" style={{ color: '#9E8E8E', opacity: 0.7 }}>
         {logs.length} log entries · {periodHistory.length} period records
       </p>
     </div>

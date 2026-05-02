@@ -2,112 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Phase CSS variables (defaults; App.jsx overrides per phase) ── */
+/* ── Luna design tokens ── */
 :root {
-  --phase-color:   #8B5CF6;
-  --phase-glow:    rgba(139,92,246,0.55);
-  --phase-from:    #8B5CF6;
-  --phase-to:      #6D28D9;
-  --phase-soft:    rgba(139,92,246,0.18);
+  --luna-rose:        #C4798D;
+  --luna-rose-deep:   #A85E72;
+  --luna-blush:       #E8B4BC;
+  --luna-blush-soft:  #F5DDE0;
+  --luna-cream:       #FAF5F2;
+  --luna-cream-dark:  #F3EBE6;
+  --luna-sage:        #8FA895;
+  --luna-sage-light:  #B8CBBF;
+  --luna-text:        #3D3035;
+  --luna-muted:       #9E8E8E;
+  --luna-card:        #FFFFFF;
 }
 
 @layer base {
   html {
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
+    background-color: #FAF5F2;
   }
   body {
     overscroll-behavior: none;
     min-height: 100vh;
+    background-color: #FAF5F2;
+    color: #3D3035;
   }
   * { box-sizing: border-box; }
+
+  h1, h2, h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
 }
 
 @layer utilities {
   /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--phase-glow); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: #E8B4BC; border-radius: 4px; }
 
-  /* ── Star twinkle ── */
-  @keyframes twinkle {
-    0%,100% { opacity: 0.2; transform: scale(1); }
-    50%      { opacity: 0.9; transform: scale(1.4); }
-  }
-
-  /* ── Aurora blob animations ── */
-  @keyframes aurora1 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33%     { transform: translate(40px,-60px) scale(1.1); }
-    66%     { transform: translate(-30px,25px) scale(0.9); }
-  }
-  @keyframes aurora2 {
-    0%,100% { transform: translate(0,0) scale(1.05); }
-    50%     { transform: translate(-50px,35px) scale(0.92); }
-  }
-  @keyframes aurora3 {
-    0%,100% { transform: translate(0,0) scale(0.95); }
-    40%     { transform: translate(25px,-40px) scale(1.15); }
-    80%     { transform: translate(-35px,15px) scale(1); }
-  }
-  .aurora-1 { animation: aurora1 16s ease-in-out infinite; }
-  .aurora-2 { animation: aurora2 20s ease-in-out infinite; }
-  .aurora-3 { animation: aurora3 13s ease-in-out infinite; }
-
-  /* ── Orb 3D rotation (for floating spheres) ── */
-  @keyframes orbFloat {
-    0%,100% { transform: translateY(0) scale(1); }
-    50%     { transform: translateY(-18px) scale(1.04); }
-  }
-  .orb-float { animation: orbFloat 7s ease-in-out infinite; }
-
-  /* ── Moon orb pulse (hero element) ── */
-  @keyframes moonPulse {
-    0%,100% { box-shadow: 0 0 60px var(--phase-glow), 0 0 120px var(--phase-soft), inset 0 1px 0 rgba(255,255,255,0.25); }
-    50%     { box-shadow: 0 0 90px var(--phase-glow), 0 0 180px var(--phase-soft), inset 0 1px 0 rgba(255,255,255,0.15); }
-  }
-  .moon-pulse { animation: moonPulse 3s ease-in-out infinite; }
-
-  /* ── Tab transition (spring) ── */
-  .tab-content { animation: tabIn 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+  /* ── Tab transition ── */
+  .tab-content { animation: tabIn 0.3s ease-out; }
   @keyframes tabIn {
-    from { opacity: 0; transform: translateY(16px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   /* ── Float ── */
   @keyframes float {
     0%,100% { transform: translateY(0); }
-    50%     { transform: translateY(-7px); }
+    50%     { transform: translateY(-8px); }
   }
-  .float { animation: float 3.5s ease-in-out infinite; }
+  .float { animation: float 4s ease-in-out infinite; }
 
-  /* ── Breathe (breathing timer circle) ── */
+  /* ── Breathe (breathing timer) ── */
   @keyframes breatheIn {
-    from { transform: scale(1); box-shadow: 0 0 20px var(--phase-glow); }
-    to   { transform: scale(1.28); box-shadow: 0 0 70px var(--phase-glow), 0 0 120px var(--phase-soft); }
+    from { transform: scale(1); }
+    to   { transform: scale(1.28); }
   }
   @keyframes breatheOut {
-    from { transform: scale(1.28); box-shadow: 0 0 70px var(--phase-glow); }
-    to   { transform: scale(1); box-shadow: 0 0 20px var(--phase-glow); }
+    from { transform: scale(1.28); }
+    to   { transform: scale(1); }
   }
   .breathe-in  { animation: breatheIn  4s ease-in-out forwards; }
-  .breathe-hold { transform: scale(1.28); box-shadow: 0 0 70px var(--phase-glow), 0 0 120px var(--phase-soft); }
+  .breathe-hold { transform: scale(1.28); }
   .breathe-out { animation: breatheOut 4s ease-in-out forwards; }
-
-  /* ── Pulse glow (uses phase var) ── */
-  @keyframes pulseGlow {
-    0%,100% { box-shadow: 0 0 15px var(--phase-soft); }
-    50%     { box-shadow: 0 0 40px var(--phase-glow), 0 0 70px var(--phase-soft); }
-  }
-  .pulse-glow { animation: pulseGlow 2.5s ease-in-out infinite; }
-
-  /* ── Neon glow (nav active item) ── */
-  @keyframes neonGlow {
-    0%,100% { box-shadow: 0 0 8px var(--phase-glow), 0 4px 20px var(--phase-soft); }
-    50%     { box-shadow: 0 0 16px var(--phase-glow), 0 4px 36px var(--phase-soft); }
-  }
-  .neon-glow { animation: neonGlow 2s ease-in-out infinite; }
 
   /* ── Shimmer sweep on buttons ── */
   @keyframes shimmerSweep {
@@ -119,109 +79,160 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
     transform: translateX(-100%) skewX(-15deg);
     transition: none;
   }
-  .btn-shimmer:hover::after { animation: shimmerSweep 0.7s ease forwards; }
+  .btn-shimmer:hover::after { animation: shimmerSweep 0.6s ease forwards; }
 
-  /* ── Card entrance ── */
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(18px) scale(0.96); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+  /* ── Card styles ── */
+  .luna-card {
+    background: #FFFFFF;
+    border-radius: 1.25rem;
+    box-shadow: 0 2px 16px rgba(61,48,53,0.06);
+    border: 1px solid rgba(232,180,188,0.25);
   }
-  .card-in { animation: cardIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
-
-  /* ── Spin slow (orbital ring) ── */
-  @keyframes spinSlow { to { transform: rotate(360deg); } }
-  .spin-slow { animation: spinSlow 18s linear infinite; }
-
-  /* ── Spin counter-slow ── */
-  @keyframes spinSlowRev { to { transform: rotate(-360deg); } }
-  .spin-slow-rev { animation: spinSlowRev 26s linear infinite; }
-
-  /* ── Ring pulse ── */
-  @keyframes ringPulse {
-    0%,100% { opacity: 0.4; transform: scale(1); }
-    50%     { opacity: 0.7; transform: scale(1.06); }
+  .luna-card-soft {
+    background: #FFF8F6;
+    border-radius: 1.25rem;
+    box-shadow: 0 2px 12px rgba(196,121,141,0.08);
+    border: 1px solid rgba(232,180,188,0.20);
   }
-  .ring-pulse { animation: ringPulse 3s ease-in-out infinite; }
+  .luna-card-rose {
+    background: linear-gradient(135deg, #C4798D 0%, #A85E72 100%);
+    border-radius: 1.25rem;
+    box-shadow: 0 6px 28px rgba(196,121,141,0.35);
+  }
+  .luna-card-blush {
+    background: linear-gradient(135deg, #F5DDE0 0%, #F0CDD2 100%);
+    border-radius: 1.25rem;
+    border: 1px solid rgba(232,180,188,0.40);
+  }
+
+  /* ── Pill / badge ── */
+  .luna-pill {
+    background: rgba(196,121,141,0.12);
+    color: #C4798D;
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .luna-pill-sage {
+    background: rgba(143,168,149,0.15);
+    color: #5E8068;
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+  }
+
+  /* ── Primary button ── */
+  .luna-btn {
+    background: linear-gradient(135deg, #C4798D 0%, #A85E72 100%);
+    color: #FFFFFF;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    padding: 0.875rem 2rem;
+    border-radius: 999px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 6px 24px rgba(196,121,141,0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .luna-btn:active { transform: scale(0.97); box-shadow: 0 3px 12px rgba(196,121,141,0.25); }
 
   /* ── Range input ── */
   input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 20px; height: 20px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--phase-from), var(--phase-to));
+    background: linear-gradient(135deg, #C4798D, #A85E72);
     cursor: pointer;
-    box-shadow: 0 0 0 4px var(--phase-soft);
+    box-shadow: 0 2px 8px rgba(196,121,141,0.30);
     transition: box-shadow 0.2s;
   }
   input[type='range']::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 0 7px var(--phase-soft);
+    box-shadow: 0 2px 12px rgba(196,121,141,0.45);
+  }
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, #E8B4BC, #F5DDE0);
   }
 
-  /* ── LIGHT MODE: clean glass card ── */
-  .card {
-    @apply bg-white/70 backdrop-blur-2xl rounded-2xl
-           border border-white/60
-           shadow-[0_8px_32px_rgba(168,85,247,0.08)];
+  /* ── Botanical decorative elements (SVG backgrounds) ── */
+  .bg-botanical {
+    background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='60' cy='100' rx='8' ry='3' fill='%23E8B4BC' opacity='0.3'/%3E%3Cpath d='M60 95 Q45 70 55 50' stroke='%23C4798D' stroke-width='1.5' stroke-linecap='round' opacity='0.25' fill='none'/%3E%3Cellipse cx='50' cy='65' rx='10' ry='6' transform='rotate(-30 50 65)' fill='%23E8B4BC' opacity='0.3'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 120px 120px;
   }
 
-  /* ── DARK MODE: true liquid glass (deep space) ── */
-  .dark .card {
-    background: rgba(255,255,255,0.04);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-radius: 1rem;
-    border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 24px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+  /* ── Separator ── */
+  .luna-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(232,180,188,0.40), transparent);
+    margin: 0.5rem 0;
   }
 
-  .card-glass {
-    @apply bg-white/60 backdrop-blur-2xl rounded-2xl border border-white/50;
+  /* ── Tab bar ── */
+  .luna-tab-bar {
+    display: flex;
+    gap: 0.25rem;
+    background: rgba(245,221,224,0.4);
+    border-radius: 999px;
+    padding: 0.25rem;
   }
-  .dark .card-glass {
-    background: rgba(255,255,255,0.03);
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+  .luna-tab-item {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #9E8E8E;
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
-
-  /* ── Nebula card (special hero cards) ── */
-  .dark .card-nebula {
-    background: linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(236,72,153,0.08) 100%);
-    backdrop-filter: blur(28px) saturate(200%);
-    -webkit-backdrop-filter: blur(28px) saturate(200%);
-    border: 1px solid rgba(255,255,255,0.10);
-    box-shadow: 0 32px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
-  }
-
-  /* ── Gradient text ── */
-  .text-gradient {
-    @apply bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent;
-  }
-  .dark .text-gradient {
-    background: linear-gradient(135deg, #f472b6, #a78bfa, #818cf8);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .text-gradient-gold {
-    @apply bg-gradient-to-r from-amber-400 via-yellow-500 to-orange-400 bg-clip-text text-transparent;
+  .luna-tab-item.active {
+    background: #FFFFFF;
+    color: #C4798D;
+    box-shadow: 0 2px 8px rgba(196,121,141,0.15);
   }
 
-  /* ── Phase gradient text (uses CSS vars) ── */
-  .text-phase {
-    background: linear-gradient(135deg, var(--phase-from), var(--phase-to));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  /* ── Card entrance animation ── */
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card-in { animation: cardIn 0.4s ease-out both; }
+
+  /* ── Petal fall ── */
+  @keyframes petalDrift {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+    100% { transform: translateY(60px) rotate(45deg); opacity: 0; }
   }
 
-  /* ── Deep space background (dark mode only) ── */
-  .dark .space-bg {
-    background: linear-gradient(160deg, #060414 0%, #0d0822 40%, #080d1f 70%, #060414 100%);
+  /* ── Toggle ── */
+  .luna-toggle-track {
+    width: 44px; height: 24px;
+    border-radius: 999px;
+    background: #E8B4BC;
+    position: relative;
+    transition: background 0.2s ease;
+    cursor: pointer;
   }
+  .luna-toggle-track.on { background: #C4798D; }
+  .luna-toggle-thumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .luna-toggle-track.on .luna-toggle-thumb { transform: translateX(20px); }
 }
