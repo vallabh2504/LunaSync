@@ -23,7 +23,7 @@ jobs:
         run: npm ci
 
       - name: Deploy to Vercel (production)
-        run: npx vercel deploy --prod --yes
+        run: npx vercel deploy --prod --yes --token="${VERCEL_TOKEN}"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: team_DQ3wHdJuhc4YKHZz4Cl4WcXd

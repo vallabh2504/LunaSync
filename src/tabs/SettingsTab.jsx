@@ -1,27 +1,42 @@
 import { useState } from 'react'
 import DataExport from '../components/DataExport'
+import { LunaCard, LunaSectionHeader } from '../components/LunaPrimitives'
 
-const LunaToggle = ({ on, onToggle }) => (
-  <div onClick={onToggle} className={`luna-toggle-track ${on ? 'on' : ''}`}>
-    <div className="luna-toggle-thumb" />
-  </div>
-)
+const THEMES = [
+  { id: 'blossom', label: 'Blossom', desc: 'Rose moon garden', colors: ['#C4798D', '#A85E72', '#8FA895'] },
+  { id: 'sage', label: 'Sage', desc: 'Calm green care', colors: ['#8FA895', '#5E8068', '#E8B4BC'] },
+  { id: 'moonlit', label: 'Moonlit', desc: 'Soft mauve night', colors: ['#8D7D82', '#A85E72', '#D8C7C9'] },
+]
 
-const SettingRow = ({ icon, label, sub, right }) => (
-  <div className="flex items-center justify-between py-3.5"
-    style={{ borderBottom: '1px solid rgba(232,180,188,0.18)' }}>
-    <div className="flex items-center gap-3">
-      <span className="text-lg">{icon}</span>
+const ThemePicker = ({ designTheme, setDesignTheme }) => (
+  <LunaCard className="p-4">
+    <div className="mb-4 flex items-start justify-between gap-3">
       <div>
-        <p className="text-sm font-semibold" style={{ color: '#3D3035' }}>{label}</p>
-        {sub && <p className="text-xs mt-0.5" style={{ color: '#9E8E8E' }}>{sub}</p>}
+        <p className="text-xs font-bold uppercase tracking-widest text-luna-muted">Design theme</p>
+        <p className="mt-1 text-xs leading-relaxed text-luna-muted">Change the app mood without changing Bujji's data.</p>
       </div>
+      <span className="luna-mini-moon" aria-hidden="true" />
     </div>
-    {right}
-  </div>
+    <div className="grid grid-cols-3 gap-2">
+      {THEMES.map(theme => (
+        <button
+          key={theme.id}
+          onClick={() => setDesignTheme(theme.id)}
+          className={`theme-choice ${designTheme === theme.id ? 'active' : ''}`}
+          aria-pressed={designTheme === theme.id}
+        >
+          <span className="theme-choice-swatches">
+            {theme.colors.map(color => <span key={color} style={{ background: color }} />)}
+          </span>
+          <span className="theme-choice-label">{theme.label}</span>
+          <span className="theme-choice-desc">{theme.desc}</span>
+        </button>
+      ))}
+    </div>
+  </LunaCard>
 )
 
-const PinSetup = ({ pinEnabled, setPinEnabled, pinCode, setPinCode }) => {
+const PinSetup = ({ pinEnabled, setPinEnabled, setPinCode }) => {
   const [show, setShow] = useState(false)
   const [pin1, setPin1] = useState('')
   const [pin2, setPin2] = useState('')
@@ -46,8 +61,7 @@ const PinSetup = ({ pinEnabled, setPinEnabled, pinCode, setPinCode }) => {
   }
 
   return (
-    <div className="rounded-2xl p-4"
-      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+    <LunaCard className="p-4">
       <div className="flex items-center gap-3 mb-3">
         <span className="text-lg">🔒</span>
         <p className="text-sm font-bold" style={{ color: '#3D3035' }}>Privacy lock</p>
@@ -98,7 +112,7 @@ const PinSetup = ({ pinEnabled, setPinEnabled, pinCode, setPinCode }) => {
           </div>
         </div>
       )}
-    </div>
+    </LunaCard>
   )
 }
 
@@ -107,17 +121,19 @@ const SettingsTab = ({
   pinEnabled, setPinEnabled, pinCode, setPinCode,
   logs, periodHistory, flowLog,
   notificationPermission, requestNotificationPermission,
+  designTheme, setDesignTheme,
 }) => (
   <div className="px-5 pt-6 space-y-5">
-    {/* Header */}
-    <div>
-      <h1 className="font-display text-2xl font-semibold" style={{ color: '#3D3035' }}>Settings</h1>
-      <p className="text-sm mt-1" style={{ color: '#9E8E8E' }}>Manage your cycle data and preferences.</p>
-    </div>
+    <LunaSectionHeader
+      eyebrow="Private sanctuary"
+      title="Settings"
+      subtitle="Manage Bujji's cycle data, reminders, and privacy."
+    />
+
+    <ThemePicker designTheme={designTheme} setDesignTheme={setDesignTheme} />
 
     {/* Cycle settings */}
-    <div className="rounded-2xl p-4"
-      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+    <LunaCard className="p-4">
       <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#9E8E8E' }}>Cycle settings</p>
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -143,11 +159,10 @@ const SettingsTab = ({
           />
         </div>
       </div>
-    </div>
+    </LunaCard>
 
     {/* Notifications */}
-    <div className="rounded-2xl p-4"
-      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+    <LunaCard className="p-4">
       <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: '#9E8E8E' }}>Notifications</p>
       <div className="flex items-center justify-between mt-3">
         <div>
@@ -166,7 +181,7 @@ const SettingsTab = ({
           </button>
         )}
       </div>
-    </div>
+    </LunaCard>
 
     {/* Privacy / PIN */}
     <PinSetup

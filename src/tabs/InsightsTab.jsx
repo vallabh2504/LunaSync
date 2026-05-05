@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import CycleHistory from '../components/CycleHistory'
+import { LunaSectionHeader } from '../components/LunaPrimitives'
 
 const MOOD_SCORES   = { Happy: 5, Energetic: 5, Calm: 4, Loved: 4, Sad: 2, Tired: 2, Angry: 1, Anxious: 1 }
 const MOOD_EMOJI    = { Happy: '😊', Sad: '😢', Angry: '😠', Tired: '😴', Energetic: '⚡', Anxious: '😰', Calm: '😌', Loved: '🥰' }
@@ -272,7 +273,7 @@ const HistoryTab = ({ logs, periodHistory, cycleLength }) => (
 )
 
 /* ── MAIN INSIGHTS TAB ── */
-const InsightsTab = ({ logs, remedies, lastPeriod, cycleLength, smartCycleLength, periodHistory }) => {
+const InsightsTab = ({ logs, lastPeriod, cycleLength, smartCycleLength, periodHistory }) => {
   const [activeTab, setActiveTab] = useState('overview')
 
   const TABS = [
@@ -283,13 +284,11 @@ const InsightsTab = ({ logs, remedies, lastPeriod, cycleLength, smartCycleLength
 
   return (
     <div className="px-5 pt-6 space-y-5">
-      {/* Header */}
-      <div>
-        <h1 className="font-display text-2xl font-semibold" style={{ color: '#3D3035' }}>Cycle Insights</h1>
-        <p className="text-sm mt-1 leading-relaxed" style={{ color: '#9E8E8E' }}>
-          Understand your patterns. Make choices that support you.
-        </p>
-      </div>
+      <LunaSectionHeader
+        eyebrow="Pattern lantern"
+        title="Cycle Insights"
+        subtitle="Understand Bujji's patterns and make choices that support her."
+      />
 
       {/* Tabs */}
       <div className="luna-tab-bar">

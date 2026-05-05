@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const DataExport = ({ logs, periodHistory, flowLog }) => {
+const DataExport = ({ logs, periodHistory }) => {
   const [done, setDone] = useState('')
 
   const downloadCSV = () => {

@@ -10,7 +10,7 @@ const RemedyCard = ({ symptoms, autoShow = true }) => {
   )
 
   useEffect(() => {
-    if (autoShow && hasHigh && !dismissed) setShow(true)
+    if (autoShow && hasHigh && !dismissed) queueMicrotask(() => setShow(true))
   }, [hasHigh, autoShow, dismissed])
 
   if (!symptoms || !hasHigh) return null

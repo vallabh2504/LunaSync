@@ -12,13 +12,13 @@ export default {
       },
       colors: {
         luna: {
-          rose:       '#C4798D',
-          'rose-deep':'#A85E72',
-          blush:      '#E8B4BC',
-          'blush-soft':'#F5DDE0',
+          rose:       'var(--luna-theme-rose)',
+          'rose-deep':'var(--luna-theme-deep)',
+          blush:      'var(--luna-blush)',
+          'blush-soft':'var(--luna-blush-soft)',
           cream:      '#FAF5F2',
           'cream-dark':'#F3EBE6',
-          sage:       '#8FA895',
+          sage:       'var(--luna-theme-sage)',
           'sage-light':'#B8CBBF',
           text:       '#3D3035',
           muted:      '#9E8E8E',

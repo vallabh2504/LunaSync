@@ -18,16 +18,20 @@ const ComfortVault = ({ lastPeriod, cycleLength }) => {
   const inPeriod  = cycleDay <= 5 && daysSince >= 0
 
   useEffect(() => {
-    if (!inPeriod) { setMessage(null); return }
+    if (!inPeriod) {
+      queueMicrotask(() => setMessage(null))
+      return
+    }
     const todayStr = new Date().toISOString().split('T')[0]
     const stored   = localStorage.getItem('comfortVaultDate')
     if (stored === todayStr) {
-      setMessage(localStorage.getItem('comfortVaultMsg'))
+      const msg = localStorage.getItem('comfortVaultMsg')
+      queueMicrotask(() => setMessage(msg))
     } else {
       const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)]
       localStorage.setItem('comfortVaultDate', todayStr)
       localStorage.setItem('comfortVaultMsg', msg)
-      setMessage(msg)
+      queueMicrotask(() => setMessage(msg))
     }
   }, [inPeriod])
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import PinLock     from './components/PinLock'
 import BottomNav   from './components/BottomNav'
 import HomeTab     from './tabs/HomeTab'
@@ -8,6 +8,7 @@ import InsightsTab from './tabs/InsightsTab'
 import SelfCareTab from './tabs/SelfCareTab'
 import SettingsTab from './tabs/SettingsTab'
 import WelcomeScreen from './components/WelcomeScreen'
+import AnimatedBackground from './components/AnimatedBackground'
 
 function App() {
   // ── Core state ───────────────────────────────────────────────────
@@ -25,6 +26,7 @@ function App() {
   const [activeTab, setActiveTab]           = useState('home')
   const [hasSeenWelcome, setHasSeenWelcome] = useState(() => localStorage.getItem('hasSeenWelcome') === 'true')
   const [showLogModal, setShowLogModal]     = useState(false)
+  const [designTheme, setDesignTheme]       = useState(() => localStorage.getItem('designTheme') || 'blossom')
 
   // ── Smart cycle length (rolling average of last 3 cycles) ────────
   const smartCycleLength = (() => {
@@ -62,8 +64,9 @@ function App() {
     localStorage.setItem('periodHistory',   JSON.stringify(periodHistory))
     localStorage.setItem('flowLog',         JSON.stringify(flowLog))
     localStorage.setItem('pinEnabled',      pinEnabled)
+    localStorage.setItem('designTheme',     designTheme)
     if (pinCode) localStorage.setItem('pinCode', pinCode)
-  }, [lastPeriod, cycleLength, logs, remedies, notifPerm, lastPartnerNotif, periodHistory, flowLog, pinEnabled, pinCode])
+  }, [lastPeriod, cycleLength, logs, remedies, notifPerm, lastPartnerNotif, periodHistory, flowLog, pinEnabled, pinCode, designTheme])
 
   // ── Flow logging ─────────────────────────────────────────────────
   const handleFlowLog = (dateStr, intensity) => {
@@ -91,7 +94,7 @@ function App() {
     return perm
   }
 
-  const sendPartnerForecast = async (days) => {
+  const sendPartnerForecast = useCallback(async (days) => {
     const token  = '8273528353:AAGOQJGIaNt2bK32YWXfwKzlX8K9PX41ykY'
     const chatId = '456109422'
     try {
@@ -103,7 +106,7 @@ function App() {
       const d = await res.json()
       if (d.ok) setLastPartnerNotif(new Date().toISOString())
     } catch { /* silent fail */ }
-  }
+  }, [])
 
   useEffect(() => {
     const check = () => {
@@ -123,11 +126,12 @@ function App() {
     check()
     const id = setInterval(check, 3600000)
     return () => clearInterval(id)
-  }, [lastPeriod, smartCycleLength, notifPerm])
+  }, [lastPeriod, smartCycleLength, notifPerm, lastPartnerNotif, sendPartnerForecast])
 
   useEffect(() => {
-    if (notifPerm === 'default') requestNotifPermission()
-  }, [])
+    if (notifPerm !== 'default') return
+    queueMicrotask(() => requestNotifPermission())
+  }, [notifPerm])
 
   // ── Log saving ───────────────────────────────────────────────────
   const handleSaveLog = (newLog) => {
@@ -173,22 +177,14 @@ function App() {
     requestNotificationPermission: requestNotifPermission,
     showLogModal, setShowLogModal,
     setActiveTab,
+    designTheme, setDesignTheme,
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#FAF5F2' }}>
-      {/* Soft background blobs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full opacity-40"
-          style={{ background: 'radial-gradient(circle, #F5DDE0 0%, transparent 70%)' }} />
-        <div className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full opacity-35"
-          style={{ background: 'radial-gradient(circle, #B8CBBF 0%, transparent 70%)' }} />
-        <div className="absolute top-1/2 right-0 w-48 h-48 rounded-full opacity-25"
-          style={{ background: 'radial-gradient(circle, #F5DDE0 0%, transparent 70%)' }} />
-      </div>
+    <div className="luna-app-shell" data-theme={designTheme}>
+      <AnimatedBackground phase={currentPhaseKey} theme={designTheme} />
 
-      {/* App shell */}
-      <div className="relative z-10 max-w-md mx-auto min-h-screen pb-28">
+      <div className="luna-phone-shell">
         <div className="tab-content" key={activeTab}>
           {activeTab === 'home'     && <HomeTab     {...shared} />}
           {activeTab === 'calendar' && <CalendarTab {...shared} />}

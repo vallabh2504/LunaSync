@@ -1,15 +1,21 @@
 import Logger from '../components/Logger'
 import RemedyCard from '../components/RemedyCard'
+import { LunaCard, LunaSectionHeader } from '../components/LunaPrimitives'
 
 const LogTab = ({ onSaveLog, lastSymptoms }) => (
   <div className="px-5 pt-6 space-y-5">
-    {/* Header */}
-    <div>
-      <h1 className="font-display text-2xl font-semibold" style={{ color: '#3D3035' }}>Daily log</h1>
-      <p className="text-sm mt-1" style={{ color: '#9E8E8E' }}>
-        {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+    <LunaSectionHeader
+      eyebrow="Body notes"
+      title="Daily log"
+      subtitle={new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+    />
+
+    <LunaCard className="p-4" tone="soft">
+      <p className="text-sm font-bold text-luna-text">A soft check-in for Bujji</p>
+      <p className="mt-1 text-xs leading-relaxed text-luna-muted">
+        Log only what feels useful today. Tiny signals become kind patterns later.
       </p>
-    </div>
+    </LunaCard>
 
     {lastSymptoms && <RemedyCard symptoms={lastSymptoms} autoShow />}
     <Logger onSaveLog={onSaveLog} />

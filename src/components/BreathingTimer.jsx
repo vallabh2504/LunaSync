@@ -122,8 +122,8 @@ const buildSoundscape = (type, ctx, volNode) => {
       master.gain.setValueAtTime(master.gain.value, ctx.currentTime)
       master.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.8)
       setTimeout(() => {
-        live.forEach(n => { try { n.stop() } catch (_) {} })
-        try { ctx.close() } catch (_) {}
+        live.forEach(n => { try { n.stop() } catch { /* noop */ } })
+        try { ctx.close() } catch { /* noop */ }
       }, 1900)
     }
   }
@@ -150,9 +150,11 @@ const BreathingTimer = () => {
       return () => clearTimeout(t)
     }
     const next = (phaseIdx + 1) % PHASES.length
-    if (next === 0) setCycles(c => c + 1)
-    setPhaseIdx(next)
-    setCountdown(PHASES[next].dur)
+    queueMicrotask(() => {
+      if (next === 0) setCycles(c => c + 1)
+      setPhaseIdx(next)
+      setCountdown(PHASES[next].dur)
+    })
   }, [active, countdown, phaseIdx])
 
   useEffect(() => {
@@ -182,27 +184,21 @@ const BreathingTimer = () => {
   }
 
   const progress = active && phase.dur > 0 ? ((phase.dur - countdown) / phase.dur) * 100 : 0
-  const circleStyle = active ? {
-    boxShadow: `0 0 40px ${phase.glow}, 0 0 80px ${phase.glow.replace('0.6','0.2')}`,
-    transform: phase.key === 'exhale' ? 'scale(1)' : phase.key === 'hold' ? 'scale(1.28)' : undefined,
-  } : {}
-
   return (
-    <div className="rounded-2xl p-5"
-      style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+    <div className="breath-card">
       <div className="text-center">
         <p className="text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: '#9E8E8E' }}>
           Breathing exercise
         </p>
 
         {/* Breathing circle */}
-        <div className="flex justify-center mb-5 relative" style={{ height: '160px' }}>
+        <div className="breath-stage">
           {active && (
-            <svg className="absolute inset-0 m-auto w-40 h-40" viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
+            <svg className="breath-progress-ring" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(232,180,188,0.20)" strokeWidth="3" />
               <circle
                 cx="50" cy="50" r="46" fill="none"
-                stroke={phaseIdx === 0 ? '#C4798D' : phaseIdx === 1 ? '#8FA895' : '#A85E72'}
+                stroke={phaseIdx === 1 ? 'var(--luna-theme-sage)' : 'var(--luna-theme-rose)'}
                 strokeWidth="3.5" strokeLinecap="round"
                 strokeDasharray={`${2 * Math.PI * 46}`}
                 strokeDashoffset={`${2 * Math.PI * 46 * (1 - progress / 100)}`}
@@ -212,14 +208,13 @@ const BreathingTimer = () => {
           )}
 
           <div
-            className={`w-36 h-36 rounded-full flex items-center justify-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10
+            className={`breath-orb
               ${phase.key === 'inhale' ? 'breathe-in' : phase.key === 'hold' ? '' : active ? 'breathe-out' : ''}`}
             style={{
               background: active
-                ? phaseIdx === 0 ? 'linear-gradient(135deg, #E8B4BC, #C4798D)'
-                  : phaseIdx === 1 ? 'linear-gradient(135deg, #B8CBBF, #8FA895)'
-                  : 'linear-gradient(135deg, #C4798D, #A85E72)'
-                : '#F5DDE0',
+                ? phaseIdx === 1 ? 'linear-gradient(135deg, var(--luna-sage), var(--luna-theme-sage))'
+                  : 'linear-gradient(135deg, var(--luna-blush), var(--luna-theme-rose))'
+                : 'var(--luna-blush-soft)',
               boxShadow: active ? `0 0 40px ${phase.glow}` : 'none',
               transition: 'background 0.8s ease',
             }}
@@ -237,7 +232,7 @@ const BreathingTimer = () => {
         </div>
 
         {active && cycles > 0 && (
-          <p className="text-xs mb-2 font-semibold" style={{ color: '#C4798D' }}>Round {cycles + 1} 🌀</p>
+          <p className="text-xs mb-2 font-semibold" style={{ color: 'var(--luna-theme-rose)' }}>Round {cycles + 1} 🌀</p>
         )}
 
         {/* Start / Stop */}
@@ -245,13 +240,13 @@ const BreathingTimer = () => {
           {!active ? (
             <button onClick={start}
               className="px-10 py-3 rounded-full font-bold text-sm transition-all active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #C4798D, #A85E72)', color: '#FFFFFF', boxShadow: '0 4px 16px rgba(196,121,141,0.30)', fontFamily: 'Nunito, sans-serif' }}>
+              style={{ background: 'linear-gradient(135deg, var(--luna-theme-rose), var(--luna-theme-deep))', color: '#FFFFFF', boxShadow: '0 4px 16px color-mix(in srgb, var(--luna-theme-rose), transparent 68%)', fontFamily: 'Nunito, sans-serif' }}>
               ▶ Start
             </button>
           ) : (
             <button onClick={stop}
               className="px-10 py-3 rounded-full font-bold text-sm transition-all active:scale-95"
-              style={{ background: '#F5DDE0', color: '#C4798D', fontFamily: 'Nunito, sans-serif' }}>
+              style={{ background: 'var(--luna-blush-soft)', color: 'var(--luna-theme-rose)', fontFamily: 'Nunito, sans-serif' }}>
               ⏹ Stop
             </button>
           )}
@@ -279,12 +274,12 @@ const BreathingTimer = () => {
                 }}
                 className="flex flex-col items-center px-3 py-2 rounded-xl text-center transition-all duration-200 min-w-[68px] active:scale-95"
                 style={{
-                  background: soundId === s.id ? '#F5DDE0' : '#FAF5F2',
-                  border: `1.5px solid ${soundId === s.id ? '#E8B4BC' : 'rgba(232,180,188,0.20)'}`,
+                  background: soundId === s.id ? 'color-mix(in srgb, var(--luna-theme-rose), white 84%)' : '#FAF5F2',
+                  border: `1.5px solid ${soundId === s.id ? 'color-mix(in srgb, var(--luna-theme-rose), white 42%)' : 'rgba(232,180,188,0.20)'}`,
                   transform: soundId === s.id ? 'scale(1.05)' : 'scale(1)',
                 }}>
                 <span className="text-xl mb-0.5">{s.emoji}</span>
-                <span className="text-[10px] font-bold leading-tight" style={{ color: soundId === s.id ? '#C4798D' : '#9E8E8E' }}>
+                <span className="text-[10px] font-bold leading-tight" style={{ color: soundId === s.id ? 'var(--luna-theme-rose)' : '#9E8E8E' }}>
                   {s.name}
                 </span>
                 <span className="text-[9px] mt-0.5" style={{ color: '#9E8E8E', opacity: 0.7 }}>{s.desc}</span>

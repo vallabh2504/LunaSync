@@ -1,4 +1,5 @@
 import CalendarView from '../components/CalendarView'
+import { LunaCard, LunaPill, LunaSectionHeader } from '../components/LunaPrimitives'
 
 const CalendarTab = ({ lastPeriod, smartCycleLength, flowLog, onFlowLog }) => {
   const last          = new Date(lastPeriod)
@@ -15,16 +16,15 @@ const CalendarTab = ({ lastPeriod, smartCycleLength, flowLog, onFlowLog }) => {
 
   return (
     <div className="px-5 pt-6 space-y-5">
-      {/* Header */}
-      <div>
-        <h1 className="font-display text-2xl font-semibold" style={{ color: '#3D3035' }}>Your Cycle</h1>
-        <p className="text-sm mt-1" style={{ color: '#9E8E8E' }}>Track and understand your cycle calendar.</p>
-      </div>
+      <LunaSectionHeader
+        eyebrow="Moon map"
+        title="Your Cycle"
+        subtitle="Track flow, fertile windows, and the days Bujji may need extra tenderness."
+      />
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl p-4 text-center"
-          style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
+        <LunaCard className="p-4 text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: '#9E8E8E' }}>Next Period</p>
           <p className="font-display text-3xl font-bold leading-none mb-1"
             style={{ color: daysUntilNext <= 0 ? '#C4798D' : '#3D3035' }}>
@@ -33,12 +33,10 @@ const CalendarTab = ({ lastPeriod, smartCycleLength, flowLog, onFlowLog }) => {
           <p className="text-xs font-medium" style={{ color: '#9E8E8E' }}>
             {daysUntilNext <= 0 ? 'May have started' : 'days away'}
           </p>
-        </div>
-        <div className="rounded-2xl p-4 text-center transition-colors"
+        </LunaCard>
+        <LunaCard className="p-4 text-center transition-colors"
           style={{
             background: isOvDay || inFertile ? '#DFF0E4' : '#FFFFFF',
-            boxShadow: '0 2px 14px rgba(61,48,53,0.06)',
-            border: `1px solid ${isOvDay || inFertile ? 'rgba(143,168,149,0.35)' : 'rgba(232,180,188,0.22)'}`,
           }}>
           <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: '#9E8E8E' }}>
             {isOvDay ? 'Ovulation' : 'Ovulation in'}
@@ -50,7 +48,7 @@ const CalendarTab = ({ lastPeriod, smartCycleLength, flowLog, onFlowLog }) => {
           <p className="text-xs font-medium" style={{ color: '#9E8E8E' }}>
             {isOvDay ? 'Today!' : inFertile ? '🌿 Fertile window' : daysUntilOv > 0 ? 'days away' : 'passed'}
           </p>
-        </div>
+        </LunaCard>
       </div>
 
       {/* Calendar */}
@@ -62,11 +60,11 @@ const CalendarTab = ({ lastPeriod, smartCycleLength, flowLog, onFlowLog }) => {
       />
 
       {/* Cycle info */}
-      <div className="rounded-2xl p-4"
-        style={{ background: '#FFFFFF', boxShadow: '0 2px 14px rgba(61,48,53,0.06)', border: '1px solid rgba(232,180,188,0.22)' }}>
-        <h3 className="text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2" style={{ color: '#9E8E8E' }}>
-          <span>🌿</span> This cycle
-        </h3>
+      <LunaCard className="p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-luna-muted">This cycle</h3>
+          <LunaPill tone="sage">{smartCycleLength} day rhythm</LunaPill>
+        </div>
         <div className="space-y-2.5">
           {[
             { icon: '🩸', label: 'Next period', value: fmt(nextPeriod), color: '#C4798D' },
@@ -87,7 +85,7 @@ const CalendarTab = ({ lastPeriod, smartCycleLength, flowLog, onFlowLog }) => {
             Tap any calendar day to log period flow
           </p>
         </div>
-      </div>
+      </LunaCard>
 
       <div className="h-2" />
     </div>
